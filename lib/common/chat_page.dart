@@ -5,7 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -21,16 +25,19 @@ class _ChatPageState extends State<ChatPage> {
   final CollectionReference _usersCollection =
       FirebaseFirestore.instance.collection('users');
 
-
   Color gold = const Color(0xFFD7B504);
 
   late StreamController<QuerySnapshot> _streamController;
+  late Stream<QuerySnapshot> _stream;
   bool _uploadingImage = false;
 
   @override
   void initState() {
     super.initState();
     _streamController = StreamController<QuerySnapshot>();
+    _stream = _messagesCollection
+        .orderBy('timestamp', descending: true)
+        .snapshots();
     _initStream();
   }
 
@@ -41,11 +48,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _initStream() {
-    _messagesCollection
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .listen((QuerySnapshot querySnapshot) {
-      _streamController.add(querySnapshot);
+    _stream.listen((QuerySnapshot querySnapshot) {
+      if (!_streamController.isClosed) {
+        _streamController.add(querySnapshot);
+      }
     });
   }
 
@@ -168,7 +174,6 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildContent(
       dynamic content, String type, bool isCurrentUser, String messageId) {
-
     if (type == 'text') {
       // Text message
       return Column(
@@ -183,19 +188,20 @@ class _ChatPageState extends State<ChatPage> {
       );
     } else if (type == 'image') {
       // Image message
-      return Column(
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Image.network(
-                content,
-                width: 200,
-                height: 150,
-              ),
-            ],
-          ),
-        ],
+      return GestureDetector(
+        onTap: () {
+          _showImageDialog(content);
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Image.network(
+              content,
+              width: 200,
+              height: 150,
+            ),
+          ],
+        ),
       );
     } else {
       return const Text(
@@ -340,7 +346,6 @@ class _ChatPageState extends State<ChatPage> {
         String userValue =
             (userType == 'admin') ? 'admin' : userSnapshot['name'];
 
-
         await _sendImage(userValue, currentUser.email!, imageFile);
       }
     }
@@ -352,32 +357,40 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _sendImage(
       String userValue, String userEmail, File imageFile) async {
-    if (imageFile != null) {
+    File compressedImage = await _compressImage(imageFile);
 
-      String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-      firebase_storage.Reference storageReference = firebase_storage
-          .FirebaseStorage.instance
-          .ref()
-          .child("chat_images")
-          .child(fileName);
+    String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+    firebase_storage.Reference storageReference = firebase_storage
+        .FirebaseStorage.instance
+        .ref()
+        .child("chat_images")
+        .child(fileName);
 
-      try {
-        await storageReference.putFile(imageFile);
+    try {
+      await storageReference.putFile(compressedImage);
 
-        String downloadURL = await storageReference.getDownloadURL();
+      String downloadURL = await storageReference.getDownloadURL();
 
-        await _messagesCollection.add({
-          'user': userValue,
-          'email': userEmail,
-          'content': downloadURL,
-          'type': 'image',
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-
-      } catch (error) {
-        print("Error uploading image: $error");
-      }
+      await _messagesCollection.add({
+        'user': userValue,
+        'email': userEmail,
+        'content': downloadURL,
+        'type': 'image',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (error) {
+      print("Error uploading image: $error");
     }
+    }
+
+  Future<File> _compressImage(File imageFile) async {
+    List<int> imageBytes = await imageFile.readAsBytes();
+    img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+    File compressedImageFile = File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 50));
+
+    return compressedImageFile;
   }
 
   void _sendMessage() async {
@@ -438,15 +451,12 @@ class _ChatPageState extends State<ChatPage> {
         );
       },
     );
-
     if (confirmDelete == true) {
-
       DocumentSnapshot messageSnapshot =
-      await _messagesCollection.doc(messageId).get();
+          await _messagesCollection.doc(messageId).get();
       if (messageSnapshot.exists) {
         String contentType = messageSnapshot['type'];
 
-        // If the message is an image, delete it from Firebase Storage
         if (contentType == 'image') {
           String imageURL = messageSnapshot['content'];
           try {
@@ -458,8 +468,37 @@ class _ChatPageState extends State<ChatPage> {
           }
         }
         await _messagesCollection.doc(messageId).delete();
-
       }
     }
   }
+
+  void _showImageDialog(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: SizedBox(
+            width: 500,
+            height: 700,
+            child: PhotoViewGallery.builder(
+              itemCount: 1,
+              builder: (context, index) {
+                return PhotoViewGalleryPageOptions(
+                  imageProvider: NetworkImage(imageUrl),
+                  minScale: PhotoViewComputedScale.contained * 0.8,
+                  maxScale: PhotoViewComputedScale.covered * 2,
+                );
+              },
+              scrollPhysics: const BouncingScrollPhysics(),
+              backgroundDecoration: const BoxDecoration(
+                color: Colors.black,
+              ),
+              pageController: PageController(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }

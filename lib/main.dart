@@ -53,7 +53,7 @@ class ChooseScreen extends StatelessWidget {
               builder: (context, userTypeSnapshot) {
                 if (userTypeSnapshot.connectionState ==
                     ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Color(0xFFD7B504)),
