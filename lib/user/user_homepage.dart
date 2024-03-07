@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:resi_rover/common/chat_page.dart';
-import 'package:resi_rover/user/complaint_page.dart';
+import 'package:resi_rover/user/complaint/complaint_page.dart';
 import 'package:resi_rover/user/voting_page.dart';
 import 'package:resi_rover/user/notice_event_page.dart';
 import 'package:resi_rover/user/maid_page.dart';
