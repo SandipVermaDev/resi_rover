@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:resi_rover/common/comment_page.dart';
 import 'package:resi_rover/common/delete_complaint.dart';
-import 'package:resi_rover/user/complaint/edit_complaint_page.dart';
 import 'package:resi_rover/common/liked_users.dart';
 
 class OpenComplaints extends StatefulWidget {
@@ -36,11 +35,10 @@ class _OpenComplaintsState extends State<OpenComplaints> {
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(gold),
-                strokeWidth: 3.0,
-              ),
-            );
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(gold),
+                  strokeWidth: 3.0,
+                ));
           }
 
           if (snapshot.hasError) {
@@ -48,7 +46,7 @@ class _OpenComplaintsState extends State<OpenComplaints> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No open complaints.'));
+            return const Center(child: Text('No pending complaints.'));
           }
 
           return ListView.builder(
@@ -82,16 +80,38 @@ class _OpenComplaintsState extends State<OpenComplaints> {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.all(8.0),
+                            height: 40,
                             decoration: BoxDecoration(
                               color: Colors.green,
-                              borderRadius: BorderRadius.circular(10.0),
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
-                            child: const Text(
-                              'Open',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 5,right: 5),
+                              child: DropdownButton<String>(
+                                value: complaint['status'],
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    _handleStatusChange(complaint.id, newValue);
+                                  }
+                                },
+                                items: <String>['Pending', 'Open', 'On Hold', 'Closed']
+                                    .map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(
+                                      value,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                                iconEnabledColor: Colors.white,
+                                dropdownColor: gold,
+                                underline: Container(),
+                                elevation: 5,
                               ),
                             ),
                           ),
@@ -102,19 +122,16 @@ class _OpenComplaintsState extends State<OpenComplaints> {
                               color: Colors.white,
                             ),
                             onSelected: (value) {
-                              _handlePopupMenuSelection(
-                                value,
-                                complaint.id,
-                                complaint['title'],
-                                complaint['details'],
-                              );
+                              if (value == 'delete') {
+                                _handlePopupMenuSelection(
+                                  value,
+                                  complaint.id,
+                                  complaint['title'],
+                                  complaint['details'],
+                                );
+                              }
                             },
-                            itemBuilder: (BuildContext context) =>
-                                <PopupMenuEntry>[
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Text('Edit'),
-                              ),
+                            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
                               const PopupMenuItem(
                                 value: 'delete',
                                 child: Text('Delete'),
@@ -148,14 +165,22 @@ class _OpenComplaintsState extends State<OpenComplaints> {
                           const Spacer(),
                           GestureDetector(
                             onLongPress: () {
-                              _handleLikeAction(complaint.id, complaint.data() as Map<String, dynamic>, isLongPress: true);
+                              _handleLikeAction(
+                                  complaint.id,
+                                  complaint.data() as Map<String, dynamic>,
+                                  isLongPress: true);
                             },
                             child: IconButton(
                               icon: const Icon(Icons.thumb_up),
                               onPressed: () {
-                                _handleLikeAction(complaint.id, complaint.data() as Map<String, dynamic>);
+                                _handleLikeAction(
+                                    complaint.id,
+                                    complaint.data() as Map<String, dynamic>);
                               },
-                              color: _isLiked(complaint.id, complaint.data() as Map<String, dynamic>) ? gold : Colors.grey,
+                              color: _isLiked(complaint.id,
+                                  complaint.data() as Map<String, dynamic>)
+                                  ? gold
+                                  : Colors.grey,
                             ),
                           ),
                           Text(
@@ -169,13 +194,13 @@ class _OpenComplaintsState extends State<OpenComplaints> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CommentPage(complaintId: complaint.id),
+                                  builder: (context) =>
+                                      CommentPage(complaintId: complaint.id),
                                 ),
                               );
                             },
                             color: gold,
                           ),
-
                           StreamBuilder<QuerySnapshot>(
                             stream: FirebaseFirestore.instance
                                 .collection('complaints')
@@ -216,6 +241,20 @@ class _OpenComplaintsState extends State<OpenComplaints> {
     );
   }
 
+  void _handleStatusChange(String complaintId, String newStatus) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('complaints')
+          .doc(complaintId)
+          .update({'status': newStatus});
+
+      // Add any additional logic you may need after updating the status
+
+    } catch (error) {
+      print("Error updating complaint status: $error");
+    }
+  }
+
   String _formatDateTime(DateTime? dateTime) {
     if (dateTime == null) {
       return 'N/A';
@@ -228,16 +267,7 @@ class _OpenComplaintsState extends State<OpenComplaints> {
 
   void _handlePopupMenuSelection(String value, String complaintId,
       String currentTitle, String currentDetails) {
-    if (value == 'edit') {
-      showDialog(
-        context: context,
-        builder: (context) => EditComplaintPage(
-          complaintId: complaintId,
-          currentTitle: currentTitle,
-          currentDetails: currentDetails,
-        ),
-      );
-    } else if (value == 'delete') {
+    if (value == 'delete') {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -253,8 +283,8 @@ class _OpenComplaintsState extends State<OpenComplaints> {
         complaint['likes'].contains(currentUserEmail);
   }
 
-  void _handleLikeAction(
-      String complaintId, Map<String, dynamic> complaint, {bool isLongPress = false}) async {
+  void _handleLikeAction(String complaintId, Map<String, dynamic> complaint,
+      {bool isLongPress = false}) async {
     try {
       String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
 
@@ -265,7 +295,8 @@ class _OpenComplaintsState extends State<OpenComplaints> {
         DocumentSnapshot complaintSnapshot = await complaintRef.get();
 
         if (complaintSnapshot.exists) {
-          List<String> likes = List<String>.from(complaintSnapshot['likes']);
+          List<String> likes =
+          List<String>.from(complaintSnapshot['likes']);
 
           if (_isLiked(complaintId, complaint)) {
             // User has already liked, so unlike
@@ -285,7 +316,6 @@ class _OpenComplaintsState extends State<OpenComplaints> {
               ),
             );
           }
-
         }
       }
     } catch (error) {

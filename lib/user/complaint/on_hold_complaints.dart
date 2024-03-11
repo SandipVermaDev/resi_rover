@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:resi_rover/user/complaint/delete_complaint.dart';
+import 'package:resi_rover/common/comment_page.dart';
+import 'package:resi_rover/common/delete_complaint.dart';
 import 'package:resi_rover/user/complaint/edit_complaint_page.dart';
+import 'package:resi_rover/common/liked_users.dart';
 
 class OnHoldComplaints extends StatefulWidget {
   const OnHoldComplaints({super.key});
@@ -27,7 +30,7 @@ class _OnHoldComplaintsState extends State<OnHoldComplaints> {
       child: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('complaints')
-            .where('status', isEqualTo: 'OnHold')
+            .where('status', isEqualTo: 'On Hold')
             .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -85,7 +88,7 @@ class _OnHoldComplaintsState extends State<OnHoldComplaints> {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: const Text(
-                              'OnHold',
+                              'On Hold',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -140,22 +143,65 @@ class _OnHoldComplaintsState extends State<OnHoldComplaints> {
                       ),
                       const SizedBox(height: 10.0),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.thumb_up),
-                            onPressed: () {
-                              // Handle like action
+                          const Spacer(),
+                          GestureDetector(
+                            onLongPress: () {
+                              _handleLikeAction(complaint.id, complaint.data() as Map<String, dynamic>, isLongPress: true);
                             },
-                            color: gold,
+                            child: IconButton(
+                              icon: const Icon(Icons.thumb_up),
+                              onPressed: () {
+                                _handleLikeAction(complaint.id, complaint.data() as Map<String, dynamic>);
+                              },
+                              color: _isLiked(complaint.id, complaint.data() as Map<String, dynamic>) ? gold : Colors.grey,
+                            ),
                           ),
+                          Text(
+                            '${complaint['likes'].length}',
+                            style: TextStyle(color: gold),
+                          ),
+                          const Spacer(),
                           IconButton(
                             icon: const Icon(Icons.comment),
                             onPressed: () {
-                              // Handle comment action
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CommentPage(complaintId: complaint.id),
+                                ),
+                              );
                             },
                             color: gold,
                           ),
+
+                          StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('complaints')
+                                .doc(complaint.id)
+                                .collection('comments')
+                                .snapshots(),
+                            builder: (context, commentsSnapshot) {
+                              if (commentsSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SizedBox.shrink();
+                              }
+
+                              if (commentsSnapshot.hasError) {
+                                return Text(
+                                    'Error: ${commentsSnapshot.error}');
+                              }
+
+                              int commentsCount =
+                                  commentsSnapshot.data!.docs.length;
+
+                              return Text(
+                                '$commentsCount',
+                                style: TextStyle(color: gold),
+                              );
+                            },
+                          ),
+                          const Spacer(),
                         ],
                       ),
                     ],
@@ -200,4 +246,49 @@ class _OnHoldComplaintsState extends State<OnHoldComplaints> {
     }
   }
 
+  bool _isLiked(String complaintId, Map<String, dynamic> complaint) {
+    String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+    return currentUserEmail != null &&
+        complaint['likes'].contains(currentUserEmail);
+  }
+
+  void _handleLikeAction(
+      String complaintId, Map<String, dynamic> complaint, {bool isLongPress = false}) async {
+    try {
+      String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+
+      if (currentUserEmail != null) {
+        DocumentReference complaintRef = FirebaseFirestore.instance
+            .collection('complaints')
+            .doc(complaintId);
+        DocumentSnapshot complaintSnapshot = await complaintRef.get();
+
+        if (complaintSnapshot.exists) {
+          List<String> likes = List<String>.from(complaintSnapshot['likes']);
+
+          if (_isLiked(complaintId, complaint)) {
+            // User has already liked, so unlike
+            likes.remove(currentUserEmail);
+          } else {
+            // User hasn't liked, so like
+            likes.add(currentUserEmail);
+          }
+
+          await complaintRef.update({'likes': likes});
+
+          if (isLongPress) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LikedByPage(likes: likes),
+              ),
+            );
+          }
+
+        }
+      }
+    } catch (error) {
+      print("Error handling like action: $error");
+    }
+  }
 }

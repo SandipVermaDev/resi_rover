@@ -11,7 +11,7 @@ import 'package:resi_rover/admin/visitors/visitors_page.dart';
 import 'package:resi_rover/main.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({Key? key}) : super(key: key);
+  const AdminDashboard({super.key});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
@@ -116,16 +116,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
         Navigator.push(context, MaterialPageRoute(builder: (_) => UsersPage()));
         break;
       case 'Chat':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatPage()));
         break;
       case 'Notice & Events':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => NoticeEventsPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const NoticeEventsPage()));
         break;
       case 'Complaint':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ComplaintPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminComplaintPage()));
         break;
       case 'Voting':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => VotingPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const VotingPage()));
         break;
       case 'Security':
         Navigator.push(context, MaterialPageRoute(builder: (_) => const SecurityPage()));

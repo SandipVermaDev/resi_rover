@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:resi_rover/user/complaint/delete_complaint.dart';
+import 'package:resi_rover/common/comment_page.dart';
+import 'package:resi_rover/common/delete_complaint.dart';
 import 'package:resi_rover/user/complaint/edit_complaint_page.dart';
-import 'package:resi_rover/user/complaint/liked_users.dart';
+import 'package:resi_rover/common/liked_users.dart';
 
 class PendingComplaints extends StatefulWidget {
   const PendingComplaints({super.key});
@@ -164,9 +165,40 @@ class _PendingComplaintsState extends State<PendingComplaints> {
                           IconButton(
                             icon: const Icon(Icons.comment),
                             onPressed: () {
-                              // Handle comment action
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CommentPage(complaintId: complaint.id),
+                                ),
+                              );
                             },
                             color: gold,
+                          ),
+                          StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('complaints')
+                                .doc(complaint.id)
+                                .collection('comments')
+                                .snapshots(),
+                            builder: (context, commentsSnapshot) {
+                              if (commentsSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SizedBox.shrink();
+                              }
+
+                              if (commentsSnapshot.hasError) {
+                                return Text(
+                                    'Error: ${commentsSnapshot.error}');
+                              }
+
+                              int commentsCount =
+                                  commentsSnapshot.data!.docs.length;
+
+                              return Text(
+                                '$commentsCount',
+                                style: TextStyle(color: gold),
+                              );
+                            },
                           ),
                           const Spacer(),
                         ],
@@ -258,5 +290,4 @@ class _PendingComplaintsState extends State<PendingComplaints> {
       print("Error handling like action: $error");
     }
   }
-
 }

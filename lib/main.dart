@@ -57,7 +57,7 @@ class ChooseScreen extends StatelessWidget {
                     child: CircularProgressIndicator(
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Color(0xFFD7B504)),
-                      strokeWidth: 3.0,
+                        strokeWidth: 3.0,
                     ),
                   );
                 } else if (userTypeSnapshot.hasError) {
