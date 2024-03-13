@@ -79,7 +79,8 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Please enter at least two and non-empty options.'),
+                    content: Text(
+                        'Please enter at least two and non-empty options.'),
                     duration: Duration(seconds: 3),
                   ),
                 );
@@ -118,7 +119,8 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
       if (!mounted) return;
 
       String updatedTitle = _titleController.text;
-      print("Updating vote details: votingId=$votingId, title=$updatedTitle, options=$options");
+      print(
+          "Updating vote details: votingId=$votingId, title=$updatedTitle, options=$options");
 
       if (updatedTitle.isNotEmpty) {
         Map<String, dynamic> voteData = {
@@ -132,6 +134,18 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
             .collection('votes')
             .doc(votingId)
             .update(voteData);
+
+        // Delete the user_votes collection associated with the edited vote
+        await FirebaseFirestore.instance
+            .collection('votes')
+            .doc(votingId)
+            .collection('user_votes')
+            .get()
+            .then((snapshot) {
+          for (DocumentSnapshot doc in snapshot.docs) {
+            doc.reference.delete();
+          }
+        });
 
         Navigator.pop(context);
 
@@ -161,5 +175,4 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
       }
     }
   }
-
 }

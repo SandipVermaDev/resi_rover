@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:resi_rover/common/chat_page.dart';
 import 'package:resi_rover/user/complaint/complaint_page.dart';
-import 'package:resi_rover/user/voting_page.dart';
-import 'package:resi_rover/user/notice_event_page.dart';
-import 'package:resi_rover/user/maid_page.dart';
-import 'package:resi_rover/user/visitors_page.dart';
-import 'package:resi_rover/user/security_page.dart';
+import 'package:resi_rover/user/voting/voting_page.dart';
+import 'package:resi_rover/user/notice&events/notice_event_page.dart';
+import 'package:resi_rover/user/maid/maid_page.dart';
+import 'package:resi_rover/user/visitors/visitors_page.dart';
+import 'package:resi_rover/user/security/security_page.dart';
 import 'package:resi_rover/auth/firebase_auth.dart';
 import 'package:resi_rover/main.dart';
 
 class UserHomePage extends StatefulWidget {
-  const UserHomePage({Key? key}) : super(key: key);
+  const UserHomePage({super.key});
 
   @override
   State<UserHomePage> createState() => _UserHomePageState();
@@ -126,25 +126,25 @@ class _UserHomePageState extends State<UserHomePage> {
     // Navigate to the corresponding page
     switch (_selectedSection) {
       case 'Chat':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatPage()));
         break;
       case 'Complaint':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => ComplaintPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ComplaintPage()));
         break;
       case 'Voting':
-        //Navigator.push(context, MaterialPageRoute(builder: (_) => VotingPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const VotingPage()));
         break;
       case 'Notice & Events':
-        //Navigator.push(context, MaterialPageRoute(builder: (_) => NoticeEventPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const NoticeEventPage()));
         break;
       case 'Maid':
-        //Navigator.push(context, MaterialPageRoute(builder: (_) => MaidPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const MaidPage()));
         break;
       case 'Visitors':
-        //Navigator.push(context, MaterialPageRoute(builder: (_) => VisitorsPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const VisitorsPage()));
         break;
       case 'Security':
-        //Navigator.push(context, MaterialPageRoute(builder: (_) => SecurityPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const SecurityPage()));
         break;
     }
   }

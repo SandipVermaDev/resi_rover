@@ -85,7 +85,7 @@ class _OpenComplaintsState extends State<OpenComplaints> {
                             padding: const EdgeInsets.all(8.0),
                             decoration: BoxDecoration(
                               color: Colors.green,
-                              borderRadius: BorderRadius.circular(10.0),
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
                             child: const Text(
                               'Open',
