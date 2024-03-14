@@ -161,9 +161,9 @@ class _VotingPageState extends State<VotingPage> {
       if (email == null) {
         // Handle the case where the user is not logged in
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('User not logged in.'),
-            duration: const Duration(seconds: 3),
+            duration: Duration(seconds: 3),
           ),
         );
         return;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class EditNoticeDialog extends StatefulWidget {
   final String noticeId;
 
-  const EditNoticeDialog({required this.noticeId});
+  const EditNoticeDialog({super.key, required this.noticeId});
 
   @override
   _EditNoticeDialogState createState() => _EditNoticeDialogState();
