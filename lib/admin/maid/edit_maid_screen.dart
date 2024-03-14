@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import 'package:image/image.dart' as img;
+
 class EditMaidScreen extends StatefulWidget {
   final DocumentSnapshot maidData;
-
 
   const EditMaidScreen({super.key, required this.maidData});
 
@@ -20,7 +20,8 @@ class EditMaidScreen extends StatefulWidget {
 
 class _EditMaidScreenState extends State<EditMaidScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _maidDobController = TextEditingController();
   final TextEditingController _maidAgeController = TextEditingController();
   String? _selectedGender;
@@ -61,12 +62,15 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
           const SizedBox(height: 20),
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
+            decoration: const InputDecoration(
+                labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
           ),
           const SizedBox(height: 16.0),
           TextField(
             controller: _contactNumberController,
-            decoration: const InputDecoration(labelText: 'Contact Number', labelStyle: TextStyle(color: Colors.black)),
+            decoration: const InputDecoration(
+                labelText: 'Contact Number',
+                labelStyle: TextStyle(color: Colors.black)),
             keyboardType: TextInputType.phone,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             maxLength: 10,
@@ -79,9 +83,12 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                 _selectedGender = value;
               });
             },
-            decoration: const InputDecoration(labelText: 'Gender', labelStyle: TextStyle(color: Colors.black)),
+            decoration: const InputDecoration(
+                labelText: 'Gender',
+                labelStyle: TextStyle(color: Colors.black)),
             dropdownColor: const Color(0xFFFFB41A),
-            items: ['Male', 'Female', 'Other'].map<DropdownMenuItem<String>>((String value) {
+            items: ['Male', 'Female', 'Other']
+                .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),
@@ -93,7 +100,8 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
             onTap: () async {
               DateTime? picked = await showDatePicker(
                 context: context,
-                initialDate: DateFormat('yyyy-MM-dd').parse(_maidDobController.text),
+                initialDate:
+                    DateFormat('yyyy-MM-dd').parse(_maidDobController.text),
                 firstDate: DateTime(1900),
                 lastDate: DateTime.now(),
                 builder: (BuildContext context, Widget? child) {
@@ -113,9 +121,11 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                 },
               );
 
-              if (picked != null && picked != DateTime.parse(_maidDobController.text)) {
+              if (picked != null &&
+                  picked != DateTime.parse(_maidDobController.text)) {
                 setState(() {
-                  _maidDobController.text = DateFormat('yyyy-MM-dd').format(picked);
+                  _maidDobController.text =
+                      DateFormat('yyyy-MM-dd').format(picked);
                   _maidAgeController.text = calculateAge(picked);
                 });
               }
@@ -141,30 +151,34 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
           ),
           const SizedBox(height: 40),
           ElevatedButton(
-            onPressed:_isLoading ? null : () async {
-              setState(() {
-                _isLoading = true;
-              });
-              // Save changes to Firebase
-              await _saveChanges();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Changes saved successfully!'),
-                  duration: Duration(seconds: 3),
-                ),
-              );
-              setState(() {
-                _isLoading = false;
-              });
-              Navigator.of(context).pop(); // Close the dialog
-            },
-
+            onPressed: _isLoading
+                ? null
+                : () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    // Save changes to Firebase
+                    await _saveChanges();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Changes saved successfully!'),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
             ),
             child: _isLoading
                 ? const CircularProgressIndicator()
-                :Text('Save Changes',style: TextStyle(color: gold),),
+                : Text(
+                    'Save Changes',
+                    style: TextStyle(color: gold),
+                  ),
           ),
         ],
       ),
@@ -205,19 +219,19 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
   Widget _buildProfileImage(String? profileImageURL) {
     return profileImageURL != null
         ? ClipRRect(
-        borderRadius: BorderRadius.circular(50),
-        child: Image.network(
-        profileImageURL,
-        width: 100,
-        height: 100,
-        fit: BoxFit.cover,
-      ),
-    )
+            borderRadius: BorderRadius.circular(50),
+            child: Image.network(
+              profileImageURL,
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
+          )
         : const Icon(
-      Icons.person,
-      size: 50,
-      color: Colors.black,
-    );
+            Icons.person,
+            size: 50,
+            color: Colors.black,
+          );
   }
 
   Future<void> _getImage(ImageSource source) async {
@@ -225,10 +239,23 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
     final pickedImage = await picker.pickImage(source: source);
 
     if (pickedImage != null) {
+      final compressedImage = await _compressImage(File(pickedImage.path));
+
       setState(() {
-        _image = File(pickedImage.path);
+        _image = compressedImage;
       });
     }
+  }
+
+  Future<File> _compressImage(File imageFile) async {
+    List<int> imageBytes = await imageFile.readAsBytes();
+    img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+    File compressedImageFile =
+        File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
+
+    return compressedImageFile;
   }
 
   Future<void> _saveChanges() async {
@@ -241,7 +268,9 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
     if (_image != null) {
       // Delete old image from Firebase Storage
       if (data['profileImageURL'] != null) {
-        firebase_storage.Reference oldImageReference = firebase_storage.FirebaseStorage.instance.refFromURL(data['profileImageURL']);
+        firebase_storage.Reference oldImageReference = firebase_storage
+            .FirebaseStorage.instance
+            .refFromURL(data['profileImageURL']);
         await oldImageReference.delete();
       }
 
@@ -250,7 +279,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
       firebase_storage.Reference storageReference = firebase_storage
           .FirebaseStorage.instance
           .ref()
-          .child("profile_images")
+          .child("maid_profile")
           .child(fileName);
 
       await storageReference.putFile(_image!);
@@ -275,7 +304,12 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
 
   String calculateAge(DateTime dob) {
     final today = DateTime.now();
-    int age = today.year - dob.year - ((today.month > dob.month || (today.month == dob.month && today.day >= dob.day)) ? 0 : 1);
+    int age = today.year -
+        dob.year -
+        ((today.month > dob.month ||
+                (today.month == dob.month && today.day >= dob.day))
+            ? 0
+            : 1);
     return age.toString();
   }
 

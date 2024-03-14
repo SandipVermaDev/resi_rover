@@ -20,8 +20,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
-  final CollectionReference _messagesCollection =
-      FirebaseFirestore.instance.collection('messages');
+  final CollectionReference _chatCollection =
+      FirebaseFirestore.instance.collection('chat');
   final CollectionReference _usersCollection =
       FirebaseFirestore.instance.collection('users');
 
@@ -35,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _streamController = StreamController<QuerySnapshot>();
-    _stream = _messagesCollection
+    _stream = _chatCollection
         .orderBy('timestamp', descending: true)
         .snapshots();
     _initStream();
@@ -371,7 +371,7 @@ class _ChatPageState extends State<ChatPage> {
 
       String downloadURL = await storageReference.getDownloadURL();
 
-      await _messagesCollection.add({
+      await _chatCollection.add({
         'user': userValue,
         'email': userEmail,
         'content': downloadURL,
@@ -388,7 +388,7 @@ class _ChatPageState extends State<ChatPage> {
     img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
 
     File compressedImageFile = File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
-    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 50));
+    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
 
     return compressedImageFile;
   }
@@ -407,7 +407,7 @@ class _ChatPageState extends State<ChatPage> {
 
         String messageText = _messageController.text.trim();
         if (messageText.isNotEmpty) {
-          await _messagesCollection.add({
+          await _chatCollection.add({
             'user': userValue,
             'email': currentUser.email,
             'content': messageText,
@@ -453,7 +453,7 @@ class _ChatPageState extends State<ChatPage> {
     );
     if (confirmDelete == true) {
       DocumentSnapshot messageSnapshot =
-          await _messagesCollection.doc(messageId).get();
+          await _chatCollection.doc(messageId).get();
       if (messageSnapshot.exists) {
         String contentType = messageSnapshot['type'];
 
@@ -467,7 +467,7 @@ class _ChatPageState extends State<ChatPage> {
             print("Error deleting image from Firebase Storage: $error");
           }
         }
-        await _messagesCollection.doc(messageId).delete();
+        await _chatCollection.doc(messageId).delete();
       }
     }
   }

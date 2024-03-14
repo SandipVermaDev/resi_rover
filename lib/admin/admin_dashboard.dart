@@ -6,7 +6,7 @@ import 'package:resi_rover/admin/security/security_page.dart';
 import 'package:resi_rover/admin/users/users_page.dart';
 import 'package:resi_rover/admin/voting/voting_page.dart';
 import 'package:resi_rover/auth/firebase_auth.dart';
-import 'package:resi_rover/common/chat_page.dart';
+import 'package:resi_rover/common/chat/chat_page.dart';
 import 'package:resi_rover/admin/visitors/visitors_page.dart';
 import 'package:resi_rover/main.dart';
 

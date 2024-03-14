@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:resi_rover/user/profile/edit_profile.dart';
+import 'package:resi_rover/security/profile/edit_profile.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -62,8 +62,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 50),
                 _buildDetailRow('Name', userData['name'] ?? ''),
-                _buildDetailRow('Wing', userData['wing'] ?? ''),
-                _buildDetailRow('Flat', userData['flat'] ?? ''),
                 _buildDetailRow('Email', _currentUser?.email ?? ''),
                 _buildDetailRow('Phone', userData['phone'] ?? ''),
                 _buildDetailRow('DOB', userData['dob'] ?? ''),

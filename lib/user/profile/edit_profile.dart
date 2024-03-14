@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:resi_rover/user/profile/user_profile.dart';
+import 'package:image/image.dart' as img;
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -72,12 +72,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         title: Text('Edit Profile', style: TextStyle(color: gold)),
         backgroundColor: Colors.black,
         iconTheme: IconThemeData(color: gold),
-        actions: [
-          IconButton(
-            onPressed: _updateUserProfile,
-            icon: const Icon(Icons.save),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -90,13 +84,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: CircleAvatar(
                 radius: 80,
                 backgroundColor: gold,
-                backgroundImage: NetworkImage(_profileImageURL ?? ''),
-                child: _image == null && _profileImageURL == null
-                    ? const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.black,
-                      )
+                backgroundImage: _image != null ? FileImage(_image!) : null,
+                child: _image == null
+                    ? _buildProfileImage(_profileImageURL)
                     : null,
               ),
             ),
@@ -152,16 +142,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
             DropdownButtonFormField<String>(
               value:
                   genderController.text.isEmpty ? null : genderController.text,
-              items: [
-                const DropdownMenuItem<String>(
+              items: const [
+                DropdownMenuItem<String>(
                   value: 'Male',
                   child: Text('Male', style: TextStyle(color: Colors.black)),
                 ),
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: 'Female',
                   child: Text('Female', style: TextStyle(color: Colors.black)),
                 ),
-                const DropdownMenuItem<String>(
+                DropdownMenuItem<String>(
                   value: 'Other',
                   child: Text('Other', style: TextStyle(color: Colors.black)),
                 ),
@@ -181,11 +171,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: const TextStyle(color: Colors.black),
               readOnly: true,
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 100),
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _updateUserProfile,
+        backgroundColor: gold,
+        icon: Icon(Icons.update),
+        label: Text('Update'),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  Widget _buildProfileImage(String? profileImageURL) {
+    return profileImageURL != null
+        ? CircleAvatar(
+            radius: 79,
+            backgroundColor: gold,
+            backgroundImage: NetworkImage(profileImageURL),
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
+            ),
+          )
+        : CircleAvatar(
+            radius: 79,
+            backgroundColor: gold,
+            child: const Icon(
+              Icons.person,
+              size: 50,
+              color: Colors.black,
+            ),
+          );
   }
 
   InputDecoration textFieldDecoration(String labelText) {
@@ -225,8 +246,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title:
-                    const Text('Take a Photo', style: TextStyle(color: Colors.black)),
+                title: const Text('Take a Photo',
+                    style: TextStyle(color: Colors.black)),
                 onTap: () async {
                   Navigator.pop(context);
                   await _getImage(ImageSource.camera);
@@ -244,10 +265,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final pickedImage = await picker.pickImage(source: source);
 
     if (pickedImage != null) {
+      final compressedImage = await _compressImage(File(pickedImage.path));
+
       setState(() {
-        _image = File(pickedImage.path);
+        _image = compressedImage;
       });
     }
+  }
+
+  Future<File> _compressImage(File imageFile) async {
+    List<int> imageBytes = await imageFile.readAsBytes();
+    img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+    File compressedImageFile =
+        File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
+
+    return compressedImageFile;
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -331,7 +365,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             .child('profile_images')
             .child(fileName);
 
-
         // Upload image to Firebase Storage
         final firebase_storage.UploadTask uploadTask =
             storageRef.putFile(_image!);
@@ -352,10 +385,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         "age": ageController.text,
       });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProfilePage()),
-      );
+      Navigator.of(context).pop();
     } catch (error) {
       print('Error updating profile: $error');
       showSnackBar('Failed to update profile');

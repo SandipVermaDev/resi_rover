@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:resi_rover/common/comment_page.dart';
-import 'package:resi_rover/common/delete_complaint.dart';
-import 'package:resi_rover/common/liked_users.dart';
+import 'package:resi_rover/common/complaints/comment_page.dart';
+import 'package:resi_rover/common/complaints/delete_complaint.dart';
+import 'package:resi_rover/common/complaints/liked_users.dart';
 
 class OpenComplaints extends StatefulWidget {
   const OpenComplaints({super.key});

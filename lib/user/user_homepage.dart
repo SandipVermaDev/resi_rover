@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:resi_rover/common/chat_page.dart';
+import 'package:resi_rover/common/chat/chat_page.dart';
 import 'package:resi_rover/user/complaint/complaint_page.dart';
 import 'package:resi_rover/user/profile/user_profile.dart';
 import 'package:resi_rover/user/voting/voting_page.dart';
-import 'package:resi_rover/user/notice&events/notice_event_page.dart';
-import 'package:resi_rover/user/maid/maid_page.dart';
-import 'package:resi_rover/user/visitors/visitors_page.dart';
-import 'package:resi_rover/user/security/security_page.dart';
+import 'package:resi_rover/common/notice&events/notice_event_page.dart';
+import 'package:resi_rover/common/maid/maid_page.dart';
+import 'package:resi_rover/common/visitors/visitors_page.dart';
+import 'package:resi_rover/common/security/security_page.dart';
 import 'package:resi_rover/auth/firebase_auth.dart';
 import 'package:resi_rover/main.dart';
 

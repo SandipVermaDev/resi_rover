@@ -4,22 +4,25 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import 'edit_maid_screen.dart';
 
 class MaidPage extends StatefulWidget {
-  const MaidPage({Key? key}) : super(key: key);
+  const MaidPage({super.key});
 
   @override
   _MaidPageState createState() => _MaidPageState();
 }
 
-class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin {
+class _MaidPageState extends State<MaidPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _maidDobController = TextEditingController();
   final TextEditingController _maidAgeController = TextEditingController();
   File? _image;
@@ -59,12 +62,12 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
         bottom: TabBar(
           controller: _tabController,
           labelColor: gold,
-          tabs: [
-            const Tab(
+          tabs: const [
+            Tab(
               text: 'View All',
               icon: Icon(Icons.people_outline),
             ),
-            const Tab(
+            Tab(
               text: 'Add Maid',
               icon: Icon(Icons.person_add_alt),
             ),
@@ -128,7 +131,9 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
+                        backgroundImage: profileImageURL != null
+                            ? NetworkImage(profileImageURL)
+                            : null,
                       ),
                       const SizedBox(
                         width: 10,
@@ -137,11 +142,16 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Name: $name', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-                            Text('Phone : $contactNumber', style: TextStyle(color: gold)),
-                            Text('Date of Birth: $dob', style: TextStyle(color: gold)),
+                            Text('Name: $name',
+                                style: TextStyle(
+                                    color: gold, fontWeight: FontWeight.bold)),
+                            Text('Phone : $contactNumber',
+                                style: TextStyle(color: gold)),
+                            Text('Date of Birth: $dob',
+                                style: TextStyle(color: gold)),
                             Text('Age: $age', style: TextStyle(color: gold)),
-                            Text('Gender: $gender', style: TextStyle(color: gold)),
+                            Text('Gender: $gender',
+                                style: TextStyle(color: gold)),
                           ],
                         ),
                       ),
@@ -183,7 +193,9 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: gold,
-          title: const Text('Edit Maid', style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+          title: const Text('Edit Maid',
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           content: EditMaidScreen(
             maidData: maidData,
           ),
@@ -192,26 +204,33 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
     );
   }
 
-  void _deleteMaid({required String maidId,required String profileImageURL}) async {
+  void _deleteMaid(
+      {required String maidId, required String profileImageURL}) async {
     bool confirmed = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.black87,
-          title: Text('Confirm Deletion', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-          content: Text('Are you sure you want to delete this maid?',style: TextStyle(color: gold),),
+          title: Text('Confirm Deletion',
+              style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+          content: Text(
+            'Are you sure you want to delete this maid?',
+            style: TextStyle(color: gold),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true); // User confirmed
               },
-              child:Text('Yes', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
+              child: Text('Yes',
+                  style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false); // User canceled
               },
-              child:Text('No', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
+              child: Text('No',
+                  style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -220,11 +239,16 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
 
     if (confirmed == true) {
       try {
-        if (profileImageURL != null && profileImageURL.isNotEmpty) {
-          await firebase_storage.FirebaseStorage.instance.refFromURL(profileImageURL).delete();
+        if (profileImageURL.isNotEmpty) {
+          await firebase_storage.FirebaseStorage.instance
+              .refFromURL(profileImageURL)
+              .delete();
         }
 
-        await FirebaseFirestore.instance.collection('maids').doc(maidId).delete();
+        await FirebaseFirestore.instance
+            .collection('maids')
+            .doc(maidId)
+            .delete();
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -244,7 +268,7 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildAddMaidTab() {
-    List<String> _genderOptions = ['Male', 'Female', 'Other'];
+    List<String> genderOptions = ['Male', 'Female', 'Other'];
 
     return Container(
       color: Colors.grey,
@@ -260,25 +284,29 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: gold,
+                  backgroundImage: _image != null ? FileImage(_image!) : null,
                   child: _image == null
                       ? const Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.black,
-                  )
+                          Icons.person,
+                          size: 50,
+                          color: Colors.black,
+                        )
                       : null,
-                  backgroundImage: _image != null ? FileImage(_image!) : null,
                 ),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(color: Colors.black)),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _contactNumberController,
-                decoration: const InputDecoration(labelText: 'Contact Number', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Contact Number',
+                    labelStyle: TextStyle(color: Colors.black)),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 maxLength: 10,
@@ -291,12 +319,16 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                     _selectedGender = value;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Gender', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Gender',
+                    labelStyle: TextStyle(color: Colors.black)),
                 dropdownColor: gold,
-                items: _genderOptions.map<DropdownMenuItem<String>>((String value) {
+                items:
+                    genderOptions.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value,style: TextStyle(color: Colors.black)),
+                    child: Text(value,
+                        style: const TextStyle(color: Colors.black)),
                   );
                 }).toList(),
               ),
@@ -328,7 +360,8 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                   if (picked != null && picked != _selectedDate) {
                     setState(() {
                       _selectedDate = picked;
-                      _maidDobController.text = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                      _maidDobController.text =
+                          DateFormat('yyyy-MM-dd').format(_selectedDate!);
                       _maidAgeController.text = calculateAge(picked);
                     });
                   }
@@ -336,7 +369,9 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _maidDobController,
-                    decoration: const InputDecoration(labelText: 'Date of Birth', labelStyle: TextStyle(color: Colors.black)),
+                    decoration: const InputDecoration(
+                        labelText: 'Date of Birth',
+                        labelStyle: TextStyle(color: Colors.black)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please select the date of birth';
@@ -349,85 +384,95 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _maidAgeController,
-                decoration: const InputDecoration(labelText: 'Age', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Age',
+                    labelStyle: TextStyle(color: Colors.black)),
                 readOnly: true,
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: _isLoading ? null : () async {
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  String name = _nameController.text.trim();
-                  String contactNumber = _contactNumberController.text.trim();
-
-                  try {
-                    if (_image != null) {
-                      String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-                      firebase_storage.Reference storageReference = firebase_storage
-                          .FirebaseStorage.instance
-                          .ref()
-                          .child("profile_images")
-                          .child(fileName);
-
-                      await storageReference.putFile(_image!);
-
-                      String downloadURL = await storageReference.getDownloadURL();
-
-                      String documentId = '$name-$contactNumber';
-
-                      bool isDuplicate = await checkDuplicateMaid(contactNumber);
-
-                      if(!isDuplicate){
-                        await FirebaseFirestore.instance.collection('maids').doc(documentId).set({
-                          'name': name,
-                          'contactNumber': contactNumber,
-                          'dob': _maidDobController.text,
-                          'age': _maidAgeController.text,
-                          'gender': _selectedGender,
-                          'profileImageURL': downloadURL,
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        setState(() {
+                          _isLoading = true;
                         });
-                        _resetAddMaidFields();
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Maid added successfully!'),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Duplicate maid. Please enter a different contact number.'),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      }
-                    }
-                  }  catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error adding maid: $e'),
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-                  }
-                  setState(() {
-                    _isLoading = false;
-                  });
+                        String name = _nameController.text.trim();
+                        String contactNumber =
+                            _contactNumberController.text.trim();
 
-                  _tabController.animateTo(0);
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black
-                ),
+                        try {
+                          if (_image != null) {
+                            String fileName =
+                                "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                            firebase_storage.Reference storageReference =
+                                firebase_storage.FirebaseStorage.instance
+                                    .ref()
+                                    .child("maid_profile")
+                                    .child(fileName);
+
+                            await storageReference.putFile(_image!);
+
+                            String downloadURL =
+                                await storageReference.getDownloadURL();
+
+                            String documentId = '$name-$contactNumber';
+
+                            bool isDuplicate =
+                                await checkDuplicateMaid(contactNumber);
+
+                            if (!isDuplicate) {
+                              await FirebaseFirestore.instance
+                                  .collection('maids')
+                                  .doc(documentId)
+                                  .set({
+                                'name': name,
+                                'contactNumber': contactNumber,
+                                'dob': _maidDobController.text,
+                                'age': _maidAgeController.text,
+                                'gender': _selectedGender,
+                                'profileImageURL': downloadURL,
+                              });
+                              _resetAddMaidFields();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Maid added successfully!'),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Duplicate maid. Please enter a different contact number.'),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error adding maid: $e'),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                        setState(() {
+                          _isLoading = false;
+                        });
+
+                        _tabController.animateTo(0);
+                      },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                 child: _isLoading
                     ? CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(gold),
-                  strokeWidth: 3.0,
-                )
-                    : Text('Add Maid',style: TextStyle(color: gold)),
+                        valueColor: AlwaysStoppedAnimation<Color>(gold),
+                        strokeWidth: 3.0,
+                      )
+                    : Text('Add Maid', style: TextStyle(color: gold)),
               ),
             ],
           ),
@@ -440,7 +485,7 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
     await showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 150,
           child: Column(
             children: [
@@ -472,20 +517,40 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
     final pickedImage = await picker.pickImage(source: source);
 
     if (pickedImage != null) {
+      // Compress the image
+      final compressedImage = await _compressImage(File(pickedImage.path));
+
       setState(() {
-        _image = File(pickedImage.path);
+        _image = compressedImage;
       });
     }
   }
 
+  Future<File> _compressImage(File imageFile) async {
+    List<int> imageBytes = await imageFile.readAsBytes();
+    img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+    File compressedImageFile =
+        File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
+
+    return compressedImageFile;
+  }
+
   String calculateAge(DateTime dob) {
     final today = DateTime.now();
-    int age = today.year - dob.year - ((today.month > dob.month || (today.month == dob.month && today.day >= dob.day)) ? 0 : 1);
+    int age = today.year -
+        dob.year -
+        ((today.month > dob.month ||
+                (today.month == dob.month && today.day >= dob.day))
+            ? 0
+            : 1);
     return age.toString();
   }
 
   Future<bool> checkDuplicateMaid(String contactNumber) async {
-    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
         .collection('maids')
         .where('contactNumber', isEqualTo: contactNumber)
         .get();

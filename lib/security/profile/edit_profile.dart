@@ -9,122 +9,99 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image/image.dart' as img;
 
-import 'user_homepage.dart';
-
-class UserForm extends StatefulWidget {
-  const UserForm({super.key});
+class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
 
   @override
-  _UserFormState createState() => _UserFormState();
+  _EditProfilePageState createState() => _EditProfilePageState();
 }
 
-class _UserFormState extends State<UserForm> {
+class _EditProfilePageState extends State<EditProfilePage> {
+  late User? _currentUser;
+  File? _image;
+
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
-  TextEditingController wingController = TextEditingController();
-  TextEditingController flatController = TextEditingController();
   DateTime? selectedDate;
   TextEditingController dobController = TextEditingController();
   TextEditingController genderController = TextEditingController();
   TextEditingController ageController = TextEditingController();
-  File? _image;
+  String? _profileImageURL;
 
   Color gold = const Color(0xFFD7B504);
 
-  InputDecoration textFieldDecoration(String labelText) {
-    return InputDecoration(
-      labelText: labelText,
-      labelStyle: TextStyle(color: gold),
-      filled: true,
-      fillColor: Colors.black,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15.0),
-        borderSide: const BorderSide(color: Colors.grey),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15.0),
-        borderSide: BorderSide(color: gold),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _currentUser = FirebaseAuth.instance.currentUser;
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    if (_currentUser != null) {
+      try {
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_currentUser!.email)
+            .get();
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          _profileImageURL = userData['profileImageURL'];
+          nameController.text = userData['name'] ?? '';
+          phoneNumberController.text = userData['phone'] ?? '';
+          dobController.text = userData['dob'] ?? '';
+          genderController.text = userData['gender'] ?? '';
+          ageController.text = userData['age'] ?? '';
+        });
+      } catch (error) {
+        print('Error fetching user data: $error');
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.grey,
+      appBar: AppBar(
+        title: Text('Edit Profile', style: TextStyle(color: gold)),
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: gold),
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 80),
-            Text(
-              'Submit the form to continue.',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: gold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'We will not share your information with anyone.',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 50),
             GestureDetector(
               onTap: _pickImage,
               child: CircleAvatar(
-                radius: 50,
+                radius: 80,
                 backgroundColor: gold,
                 backgroundImage: _image != null ? FileImage(_image!) : null,
                 child: _image == null
-                    ? const Icon(
-                        Icons.person,
-                        size: 50,
-                        color: Colors.black,
-                      )
+                    ? _buildProfileImage(_profileImageURL)
                     : null,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 50),
             TextField(
               controller: nameController,
               decoration: textFieldDecoration('Name'),
-              style: TextStyle(color: gold),
+              style: const TextStyle(color: Colors.black),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             TextField(
               controller: phoneNumberController,
               decoration: textFieldDecoration('Phone Number'),
-              style: TextStyle(color: gold),
+              style: const TextStyle(color: Colors.black),
               keyboardType: TextInputType.phone,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               maxLength: 10,
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: wingController,
-                    decoration: textFieldDecoration('Wing'),
-                    style: TextStyle(color: gold),
-                  ),
-                ),
-                const SizedBox(width: 10), // Adjust the spacing as needed
-                Expanded(
-                  child: TextField(
-                    controller: flatController,
-                    decoration: textFieldDecoration('Flat'),
-                    style: TextStyle(color: gold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
                 _selectDate(context);
@@ -133,67 +110,101 @@ class _UserFormState extends State<UserForm> {
                 child: TextField(
                   controller: dobController,
                   decoration: textFieldDecoration('Date of Birth'),
-                  style: TextStyle(color: gold),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value:
                   genderController.text.isEmpty ? null : genderController.text,
-              items: [
+              items: const [
                 DropdownMenuItem<String>(
                   value: 'Male',
-                  child: Text('Male', style: TextStyle(color: gold)),
+                  child: Text('Male', style: TextStyle(color: Colors.black)),
                 ),
                 DropdownMenuItem<String>(
                   value: 'Female',
-                  child: Text('Female', style: TextStyle(color: gold)),
+                  child: Text('Female', style: TextStyle(color: Colors.black)),
                 ),
                 DropdownMenuItem<String>(
                   value: 'Other',
-                  child: Text('Other', style: TextStyle(color: gold)),
+                  child: Text('Other', style: TextStyle(color: Colors.black)),
                 ),
               ],
-              dropdownColor: Colors.black87,
+              dropdownColor: gold,
               onChanged: (String? newValue) {
                 setState(() {
                   genderController.text = newValue ?? '';
                 });
               },
               decoration: textFieldDecoration('Gender'),
-              style: TextStyle(color: gold),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
             TextField(
               controller: ageController,
               decoration: textFieldDecoration('Age'),
-              style: TextStyle(color: gold),
+              style: const TextStyle(color: Colors.black),
               readOnly: true,
             ),
-            const SizedBox(height: 50),
-            ElevatedButton(
-              onPressed: () {
-                if (_validateForm()) {
-                  calculateAge();
-                  sendUserDataToDB();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: gold,
-              ),
-              child:
-                  const Text('Continue', style: TextStyle(color: Colors.black)),
-            ),
+            const SizedBox(height: 100),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _updateUserProfile,
+        backgroundColor: gold,
+        icon: Icon(Icons.update),
+        label: Text('Update'),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildProfileImage(String? profileImageURL) {
+    return profileImageURL != null
+        ? CircleAvatar(
+            radius: 79,
+            backgroundColor: gold,
+            backgroundImage: NetworkImage(profileImageURL),
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.transparent,
+              ),
+            ),
+          )
+        : CircleAvatar(
+            radius: 79,
+            backgroundColor: gold,
+            child: const Icon(
+              Icons.person,
+              size: 50,
+              color: Colors.black,
+            ),
+          );
+  }
+
+  InputDecoration textFieldDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }
 
   Future<void> _pickImage() async {
     await showModalBottomSheet(
+      backgroundColor: gold,
       context: context,
       builder: (BuildContext context) {
         return SizedBox(
@@ -202,7 +213,8 @@ class _UserFormState extends State<UserForm> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from Gallery'),
+                title: const Text('Choose from Gallery',
+                    style: TextStyle(color: Colors.black)),
                 onTap: () async {
                   Navigator.pop(context);
                   await _getImage(ImageSource.gallery);
@@ -210,7 +222,8 @@ class _UserFormState extends State<UserForm> {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Take a Photo'),
+                title: const Text('Take a Photo',
+                    style: TextStyle(color: Colors.black)),
                 onTap: () async {
                   Navigator.pop(context);
                   await _getImage(ImageSource.camera);
@@ -241,7 +254,7 @@ class _UserFormState extends State<UserForm> {
     img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
 
     File compressedImageFile =
-    File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+        File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
     await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
 
     return compressedImageFile;
@@ -294,89 +307,70 @@ class _UserFormState extends State<UserForm> {
     }
   }
 
-  bool _validateForm() {
-    if (nameController.text.isEmpty) {
-      showValidationSnackBar('Please enter your name');
-      return false;
-    }
-
-    if (phoneNumberController.text.isEmpty ||
-        phoneNumberController.text.length != 10) {
-      showValidationSnackBar('Please enter a valid 10-digit phone number');
-      return false;
-    }
-
-    if (dobController.text.isEmpty) {
-      showValidationSnackBar('Please select your date of birth');
-      return false;
-    }
-
-    if (flatController.text.isEmpty) {
-      showValidationSnackBar('Please enter flat');
-      return false;
-    }
-
-    if (wingController.text.isEmpty) {
-      showValidationSnackBar('Please enter wing');
-      return false;
-    }
-
-    if (genderController.text.isEmpty) {
-      showValidationSnackBar('Please select your gender');
-      return false;
-    }
-
-    // Add additional validations for other fields as needed
-
-    return true;
-  }
-
-  void showValidationSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
-  }
-
-  Future<void> sendUserDataToDB() async {
+  Future<void> _updateUserProfile() async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     var currentUser = auth.currentUser;
 
     CollectionReference collectionRef =
         FirebaseFirestore.instance.collection("users");
 
-    if (_image != null) {
-      String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-      firebase_storage.Reference storageReference = firebase_storage
-          .FirebaseStorage.instance
-          .ref()
-          .child("profile_images")
-          .child(fileName);
+    try {
+      // Delete old image from Firebase Storage if it exists
+      if (_image != null) {
+        // Get the old image URL from Firestore
+        String? oldImageUrl = _profileImageURL;
 
-      await storageReference.putFile(_image!);
+        // If there is an old image, delete it from Firebase Storage
+        if (oldImageUrl != null) {
+          firebase_storage.Reference oldImageReference =
+              firebase_storage.FirebaseStorage.instance.refFromURL(oldImageUrl);
+          await oldImageReference.delete();
+        }
+      }
 
-      String downloadURL = await storageReference.getDownloadURL();
+      // Upload new image to Firebase Storage if _image is not null
+      String? imageUrl;
+      if (_image != null) {
+        // Generate a unique file name for the new image
+        String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
 
-      await collectionRef.doc(currentUser!.email).set({
+        // Get reference to the Firebase Storage bucket
+        final firebase_storage.Reference storageRef = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .child('security_profile')
+            .child(fileName);
+
+        // Upload image to Firebase Storage
+        final firebase_storage.UploadTask uploadTask =
+            storageRef.putFile(_image!);
+
+        // Get download URL of the uploaded image
+        final firebase_storage.TaskSnapshot downloadSnapshot = await uploadTask;
+        imageUrl = await downloadSnapshot.ref.getDownloadURL();
+      }
+
+      await collectionRef.doc(currentUser!.email).update({
+        "profileImageURL": imageUrl ?? _profileImageURL,
         "name": nameController.text,
         "phone": phoneNumberController.text,
-        "wing": wingController.text,
-        "flat": flatController.text,
         "dob": dobController.text,
         "gender": genderController.text,
         "age": ageController.text,
-        "profileImageURL": downloadURL,
-        "userType": "user",
-        "email": currentUser.email,
       });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const UserHomePage()),
-      );
-    } else {
-      showValidationSnackBar('Please select a profile image');
+      Navigator.of(context).pop();
+    } catch (error) {
+      print('Error updating profile: $error');
+      showSnackBar('Failed to update profile');
     }
+  }
+
+  void showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }

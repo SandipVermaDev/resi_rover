@@ -8,11 +8,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:image/image.dart' as img;
 
 import 'edit_security_screen.dart';
 
 class SecurityPage extends StatefulWidget {
-  const SecurityPage({Key? key}) : super(key: key);
+  const SecurityPage({super.key});
 
   @override
   _SecurityPageState createState() => _SecurityPageState();
@@ -32,7 +33,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
 
   bool _isLoading = false;
 
-  final Color gold = Color(0xFFD7B504);
+  final Color gold = const Color(0xFFD7B504);
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
         bottom: TabBar(
           controller: _tabController,
           labelColor: gold,
-          tabs: [
+          tabs: const [
             Tab(
               text: 'View All',
               icon: Icon(Icons.people_outline),
@@ -106,7 +107,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD7B504)),
                   strokeWidth: 3.0,
@@ -123,7 +124,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                 var profileImageURL = securityData['profileImageURL'];
                 var name = securityData['name'];
                 var email = securityData['email'];
-                var contactNumber = securityData['contactNumber'];
+                var contactNumber = securityData['phone'];
 
                 return Container(
                   decoration: BoxDecoration(
@@ -139,7 +140,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                         radius: 30,
                         backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 10,
                       ),
                       Expanded(
@@ -155,14 +156,14 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.edit),
+                            icon: const Icon(Icons.edit),
                             color: gold,
                             onPressed: () {
                               _editSecurity(securityDocs[index]);
                             },
                           ),
                           IconButton(
-                            icon: Icon(Icons.delete),
+                            icon: const Icon(Icons.delete),
                             color: gold,
                             onPressed: () {
                               _deleteSecurity(
@@ -190,7 +191,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: gold,
-          title: Text('Edit Security', style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+          title: const Text('Edit Security', style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
           content: EditSecurityScreen(
             securityData: securityData,
           ),
@@ -229,14 +230,14 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
 
     if (confirmed == true) {
       try {
-        if (profileImageURL != null && profileImageURL.isNotEmpty) {
+        if (profileImageURL.isNotEmpty) {
           await firebase_storage.FirebaseStorage.instance.refFromURL(profileImageURL).delete();
         }
 
         await FirebaseFirestore.instance.collection('users').doc(userId).delete();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Security deleted successfully!'),
             duration: Duration(seconds: 3),
           ),
@@ -245,7 +246,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error deleting security: $e'),
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -253,7 +254,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
   }
 
   Widget _buildAddSecurityTab() {
-    List<String> _genderOptions = ['Male', 'Female', 'Other'];
+    List<String> genderOptions = ['Male', 'Female', 'Other'];
 
     return SingleChildScrollView(
       child: Container(
@@ -263,14 +264,14 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: gold,
                   child: _image == null
-                      ? Icon(
+                      ? const Icon(
                     Icons.person,
                     size: 50,
                     color: Colors.black,
@@ -281,22 +282,22 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
               ),
               TextField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Colors.black)),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextField(
                 controller: _contactNumberController,
-                decoration: InputDecoration(labelText: 'Contact Number', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(labelText: 'Contact Number', labelStyle: TextStyle(color: Colors.black)),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 maxLength: 10,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               GestureDetector(
                 onTap: () async {
                   DateTime? picked = await showDatePicker(
@@ -332,7 +333,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _securityDobController,
-                    decoration: InputDecoration(labelText: 'Date of Birth', labelStyle: TextStyle(color: Colors.black)),
+                    decoration: const InputDecoration(labelText: 'Date of Birth', labelStyle: TextStyle(color: Colors.black)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please select the date of birth';
@@ -342,13 +343,13 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                   ),
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _securityAgeController,
-                decoration: InputDecoration(labelText: 'Age', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(labelText: 'Age', labelStyle: TextStyle(color: Colors.black)),
                 readOnly: true,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               DropdownButtonFormField<String>(
                 value: _selectedGender,
                 onChanged: (String? value) {
@@ -356,24 +357,24 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                     _selectedGender = value;
                   });
                 },
-                decoration: InputDecoration(labelText: 'Gender',
+                decoration: const InputDecoration(labelText: 'Gender',
                     labelStyle: TextStyle(color: Colors.black)
                 ),
                 dropdownColor: gold,
-                items: _genderOptions.map<DropdownMenuItem<String>>((String value) {
+                items: genderOptions.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value,style: TextStyle(color: Colors.black)),
+                    child: Text(value,style: const TextStyle(color: Colors.black)),
                   );
                 }).toList(),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: InputDecoration(labelText: 'Password', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(labelText: 'Password', labelStyle: TextStyle(color: Colors.black)),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: _isLoading ? null : () async {
                   setState(() {
@@ -405,7 +406,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                         firebase_storage.Reference storageReference = firebase_storage
                             .FirebaseStorage.instance
                             .ref()
-                            .child("profile_images")
+                            .child("security_profile")
                             .child(fileName);
 
                         await storageReference.putFile(_image!);
@@ -415,7 +416,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                         await FirebaseFirestore.instance.collection('users').doc(email).set({
                           'email': email,
                           'name': name,
-                          'contactNumber': contactNumber,
+                          'phone': contactNumber,
                           'userType': 'security',
                           'dob': _securityDobController.text,
                           'age': _securityAgeController.text,
@@ -427,14 +428,14 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                       }
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Security added successfully!'),
                           duration: Duration(seconds: 3),
                         ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Error adding security. Please try again.'),
                           duration: Duration(seconds: 3),
                         ),
@@ -443,7 +444,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'email-already-in-use') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('The email address is already in use. Please choose a different one.'),
                           duration: Duration(seconds: 3),
                         ),
@@ -452,7 +453,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Error: $e'),
-                          duration: Duration(seconds: 3),
+                          duration: const Duration(seconds: 3),
                         ),
                       );
                     }
@@ -490,16 +491,16 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
           child: Column(
             children: [
               ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Choose from Gallery'),
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
                 onTap: () async {
                   Navigator.pop(context);
                   await _getImage(ImageSource.gallery);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Take a Photo'),
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take a Photo'),
                 onTap: () async {
                   Navigator.pop(context);
                   await _getImage(ImageSource.camera);
@@ -517,10 +518,23 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
     final pickedImage = await picker.pickImage(source: source);
 
     if (pickedImage != null) {
+      final compressedImage = await _compressImage(File(pickedImage.path));
+
       setState(() {
-        _image = File(pickedImage.path);
+        _image = compressedImage;
       });
     }
+  }
+
+  Future<File> _compressImage(File imageFile) async {
+    List<int> imageBytes = await imageFile.readAsBytes();
+    img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
+
+    File compressedImageFile =
+    File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+    await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
+
+    return compressedImageFile;
   }
 
 

@@ -59,7 +59,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                 var profileImageURL = securityData['profileImageURL'];
                 var name = securityData['name'];
                 var email = securityData['email'];
-                var contactNumber = securityData['contactNumber'];
+                var contactNumber = securityData['phone'];
 
                 return Container(
                   decoration: BoxDecoration(

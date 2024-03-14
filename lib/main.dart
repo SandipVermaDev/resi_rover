@@ -5,6 +5,7 @@ import 'package:resi_rover/screens/login_page.dart';
 import 'package:resi_rover/screens/splash_screen.dart';
 import 'package:resi_rover/security/security_homepage.dart';
 import 'package:resi_rover/user/user_homepage.dart';
+import 'package:resi_rover/user/userform.dart';
 
 import 'admin/admin_dashboard.dart';
 import 'auth/firebase_auth.dart';
@@ -72,7 +73,7 @@ class ChooseScreen extends StatelessWidget {
                   } else if (userType == 'security') {
                     return const SecurityHomePage();
                   } else {
-                    return const Text('Unknown user type');
+                    return const UserForm();
                   }
                 }
               },
