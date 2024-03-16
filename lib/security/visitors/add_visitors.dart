@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +27,7 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       appBar: AppBar(
         title: Text(
           'Add Visitor',
@@ -214,21 +216,41 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
     try {
       String imageUrl = await _uploadImageToStorage();
 
-      await FirebaseFirestore.instance.collection('visitors').add({
-        'profileImageURL': imageUrl,
-        'name': nameController.text,
-        'phone': phoneController.text,
-        'wing': wingController.text,
-        'flat': flatController.text,
-        'purpose': purposeController.text,
-        'status': 'check in',
-        'checkInTime': Timestamp.now(),
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Visitor Checked In')),
-      );
+      User? user = FirebaseAuth.instance.currentUser;
+      String userEmail = user!.email!;
 
-      Navigator.of(context).pop();
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.email)
+          .get();
+
+      if (userSnapshot.exists) {
+        String userName = userSnapshot['name'];
+
+        // Add visitor document
+        DocumentReference visitorRef = await FirebaseFirestore.instance.collection('visitors').add({
+          'profileImageURL': imageUrl,
+          'name': nameController.text,
+          'phone': phoneController.text,
+          'wing': wingController.text,
+          'flat': flatController.text,
+          'purpose': purposeController.text,
+          'status': 'check in',
+        });
+
+        // Add check_in sub-collection
+        await visitorRef.collection('check_in').add({
+          'checkInTime': Timestamp.now(),
+          'securityEmail': userEmail,
+          'securityName': userName,
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Visitor Checked In')),
+        );
+
+        Navigator.of(context).pop();
+      }
     } catch (error) {
       print('Error adding visitor: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -247,7 +269,7 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
       return await snapshot.ref.getDownloadURL();
     } catch (error) {
       print('Error uploading image: $error');
-      throw error;
+      rethrow;
     }
   }
 }

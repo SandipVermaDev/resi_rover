@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:resi_rover/security/visitors/add_visitors.dart';
+import 'package:resi_rover/security/visitors/visitors_history.dart';
+import 'package:resi_rover/security/visitors/visitors_in_society.dart';
+import 'package:resi_rover/security/visitors/visitors_today.dart';
 
 class VisitorsPage extends StatefulWidget {
   const VisitorsPage({super.key});
 
   @override
-  State<VisitorsPage> createState() => _VisitorsPageState();
+  _VisitorsPageState createState() => _VisitorsPageState();
 }
 
 class _VisitorsPageState extends State<VisitorsPage> with TickerProviderStateMixin {
@@ -32,41 +35,30 @@ class _VisitorsPageState extends State<VisitorsPage> with TickerProviderStateMix
           controller: _tabController,
           labelColor: gold,
           tabs: const [
-            Tab(text: 'In Society',icon: Icon(Icons.input_sharp)),
-            Tab(text: 'Today',icon: Icon(Icons.today)),
-            Tab(text: 'History',icon: Icon(Icons.history)),
+            Tab(text: 'In Society', icon: Icon(Icons.input_sharp)),
+            Tab(text: 'Today', icon: Icon(Icons.today)),
+            Tab(text: 'History', icon: Icon(Icons.history)),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          // Visitors in society
-          _buildTabContent('Visitors in Society'),
-          // Visitors who visited today
-          _buildTabContent('Visitors Today'),
-          // All visitors history
-          _buildTabContent('All Visitors History'),
+        children: const [
+          VisitorsInSocietyTab(),
+          VisitorsTodayTab(),
+          VisitorsHistoryTab(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
+
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddVisitorPage()),
+            MaterialPageRoute(builder: (context) => const AddVisitorPage()),
           );
         },
         backgroundColor: gold,
         child: const Icon(Icons.person_add),
-      ),
-    );
-  }
-
-  Widget _buildTabContent(String title) {
-    return Center(
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 20, color: Colors.amber),
       ),
     );
   }
