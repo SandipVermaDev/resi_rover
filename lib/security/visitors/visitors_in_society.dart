@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -46,7 +47,8 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
                 var visitorDataList = snapshot.data!;
 
                 // Sort visitors based on check-in time
-                visitorDataList.sort((a, b) => (b['checkInData']['checkInTime'] as Timestamp)
+                visitorDataList.sort((a, b) => (b['checkInData']['checkInTime']
+                        as Timestamp)
                     .compareTo(a['checkInData']['checkInTime'] as Timestamp));
 
                 return ListView.builder(
@@ -63,7 +65,8 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
 
                     return GestureDetector(
                       onTap: () async {
-                        _showVisitorDetailsPopup(context, visitorData, checkInData, visitorId);
+                        _showVisitorDetailsPopup(
+                            context, visitorData, checkInData, visitorId);
                       },
                       child: Card(
                         margin: const EdgeInsets.symmetric(
@@ -92,18 +95,32 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
                                   ),
                                 ],
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  _confirmCheckOut(context, visitorId, checkInData);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: gold,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _confirmCheckOut(
+                                          context, visitorId, checkInData);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: gold,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0),
+                                      ),
+                                    ),
+                                    child: const Text('Check Out',
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.black)),
                                   ),
-                                ),
-                                child: const Text('Check Out',
-                                    style: TextStyle(fontSize: 15, color: Colors.black)),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_rounded),
+                                    color: Colors.red,
+                                    onPressed: () {
+                                      _confirmDelete(context, visitorId);
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -112,16 +129,15 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
                             children: [
                               const SizedBox(height: 4),
                               Text('Phone: $visitorPhone',
-                                  style: TextStyle(
-                                      color: gold, fontSize: 15)),
+                                  style: TextStyle(color: gold, fontSize: 15)),
                               const SizedBox(height: 4),
                               Text(
                                   'Check In Time: ${_formatTimestamp(checkInTime)}',
-                                  style: TextStyle(
-                                      color: gold, fontSize: 15)),
+                                  style: TextStyle(color: gold, fontSize: 15)),
                               Text(
                                 'Check In By: $securityName',
-                                style: const TextStyle(color: Colors.white, fontSize: 15),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 15),
                               ),
                             ],
                           ),
@@ -148,7 +164,8 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
     }
   }
 
-  Stream<List<Map<String, dynamic>>> _fetchLatestCheckInDataStream(List<DocumentSnapshot> visitorDocs) {
+  Stream<List<Map<String, dynamic>>> _fetchLatestCheckInDataStream(
+      List<DocumentSnapshot> visitorDocs) {
     return Stream.fromFuture(Future.wait(visitorDocs.map((doc) async {
       var visitorId = doc.id;
       var visitorData = doc.data() as Map<String, dynamic>;
@@ -340,6 +357,70 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
       }
     } catch (error) {
       print('Error during check-out: $error');
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, String visitorId) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text('Confirm Delete', style: TextStyle(color: gold)),
+          content: Text('Are you sure you want to delete this visitor?',
+              style: TextStyle(color: gold)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel',
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _handleDelete(visitorId);
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    Colors.red, // Use a different color for the delete button
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+              ),
+              child: const Text('Delete',
+                  style: TextStyle(fontSize: 15, color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDelete(String visitorId) async {
+    try {
+      // Fetch visitor profile image URL from Firestore
+      DocumentSnapshot visitorSnapshot = await FirebaseFirestore.instance
+          .collection('visitors')
+          .doc(visitorId)
+          .get();
+      String? profileImageURL = visitorSnapshot.get('profileImageURL');
+
+      // Delete visitor profile image from Firebase Storage if exists
+      if (profileImageURL != null && profileImageURL.isNotEmpty) {
+        await firebase_storage.FirebaseStorage.instance
+            .refFromURL(profileImageURL)
+            .delete();
+      }
+
+      // Delete visitor document from Firestore
+      await FirebaseFirestore.instance
+          .collection('visitors')
+          .doc(visitorId)
+          .delete();
+    } catch (error) {
+      print('Error during delete: $error');
     }
   }
 }

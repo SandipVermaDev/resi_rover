@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
+import 'package:resi_rover/security/visitors/visitors_page.dart';
 
 class AddVisitorPage extends StatefulWidget {
   const AddVisitorPage({super.key});
@@ -250,6 +251,11 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
         );
 
         Navigator.of(context).pop();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => VisitorsPage()),
+        );
+        //Navigator.of(context).pop();
       }
     } catch (error) {
       print('Error adding visitor: $error');
