@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,11 +18,13 @@ class SecurityPage extends StatefulWidget {
   _SecurityPageState createState() => _SecurityPageState();
 }
 
-class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderStateMixin {
+class _SecurityPageState extends State<SecurityPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _securityDobController = TextEditingController();
   final TextEditingController _securityAgeController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -120,7 +121,8 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
             return ListView.builder(
               itemCount: securityDocs.length,
               itemBuilder: (context, index) {
-                var securityData = securityDocs[index].data() as Map<String, dynamic>;
+                var securityData =
+                    securityDocs[index].data() as Map<String, dynamic>;
                 var profileImageURL = securityData['profileImageURL'];
                 var name = securityData['name'];
                 var email = securityData['email'];
@@ -138,7 +140,9 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
+                        backgroundImage: profileImageURL != null
+                            ? NetworkImage(profileImageURL)
+                            : null,
                       ),
                       const SizedBox(
                         width: 10,
@@ -147,9 +151,13 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Name :$name', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-                            Text('Email: $email', style: TextStyle(color: gold)),
-                            Text('Ph No: $contactNumber', style: TextStyle(color: gold)),
+                            Text('Name :$name',
+                                style: TextStyle(
+                                    color: gold, fontWeight: FontWeight.bold)),
+                            Text('Email: $email',
+                                style: TextStyle(color: gold)),
+                            Text('Ph No: $contactNumber',
+                                style: TextStyle(color: gold)),
                           ],
                         ),
                       ),
@@ -168,7 +176,8 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                             onPressed: () {
                               _deleteSecurity(
                                 userId: securityDocs[index].id,
-                                profileImageURL: securityData['profileImageURL'],
+                                profileImageURL:
+                                    securityData['profileImageURL'],
                               );
                             },
                           ),
@@ -191,7 +200,9 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: gold,
-          title: const Text('Edit Security', style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+          title: const Text('Edit Security',
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           content: EditSecurityScreen(
             securityData: securityData,
           ),
@@ -200,28 +211,30 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
     );
   }
 
-
-
-  void _deleteSecurity({required String userId, required String profileImageURL}) async {
+  void _deleteSecurity(
+      {required String userId, required String profileImageURL}) async {
     bool confirmed = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.black87,
-          title: Text('Confirm Deletion', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-          content: Text('Are you sure you want to delete this security?', style: TextStyle(color: gold)),
+          title: Text('Confirm Deletion',
+              style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+          content: Text('Are you sure you want to delete this security?',
+              style: TextStyle(color: gold)),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true); // User confirmed
-              },
-              child: Text('Yes', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-            ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false); // User canceled
               },
-              child: Text('No', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirmed
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -230,11 +243,16 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
 
     if (confirmed == true) {
       try {
-        if (profileImageURL.isNotEmpty) {
+        /*if (profileImageURL.isNotEmpty) {
           await firebase_storage.FirebaseStorage.instance.refFromURL(profileImageURL).delete();
         }
 
-        await FirebaseFirestore.instance.collection('users').doc(userId).delete();
+        await FirebaseFirestore.instance.collection('users').doc(userId).delete();*/
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({'userType': 'disabled'});
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -272,27 +290,33 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                   backgroundColor: gold,
                   child: _image == null
                       ? const Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.black,
-                  )
+                          Icons.person,
+                          size: 50,
+                          color: Colors.black,
+                        )
                       : null,
                   backgroundImage: _image != null ? FileImage(_image!) : null,
                 ),
               ),
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: TextStyle(color: Colors.black)),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: TextStyle(color: Colors.black)),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _contactNumberController,
-                decoration: const InputDecoration(labelText: 'Contact Number', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Contact Number',
+                    labelStyle: TextStyle(color: Colors.black)),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 maxLength: 10,
@@ -324,8 +348,9 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
 
                   if (picked != null && picked != _selectedDate) {
                     setState(() {
-                      _selectedDate=picked;
-                      _securityDobController.text= DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                      _selectedDate = picked;
+                      _securityDobController.text =
+                          DateFormat('yyyy-MM-dd').format(_selectedDate!);
                       _securityAgeController.text = calculateAge(picked);
                     });
                   }
@@ -333,7 +358,9 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _securityDobController,
-                    decoration: const InputDecoration(labelText: 'Date of Birth', labelStyle: TextStyle(color: Colors.black)),
+                    decoration: const InputDecoration(
+                        labelText: 'Date of Birth',
+                        labelStyle: TextStyle(color: Colors.black)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please select the date of birth';
@@ -346,7 +373,9 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _securityAgeController,
-                decoration: const InputDecoration(labelText: 'Age', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Age',
+                    labelStyle: TextStyle(color: Colors.black)),
                 readOnly: true,
               ),
               const SizedBox(height: 16.0),
@@ -357,14 +386,16 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                     _selectedGender = value;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Gender',
-                    labelStyle: TextStyle(color: Colors.black)
-                ),
+                decoration: const InputDecoration(
+                    labelText: 'Gender',
+                    labelStyle: TextStyle(color: Colors.black)),
                 dropdownColor: gold,
-                items: genderOptions.map<DropdownMenuItem<String>>((String value) {
+                items:
+                    genderOptions.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value,style: const TextStyle(color: Colors.black)),
+                    child: Text(value,
+                        style: const TextStyle(color: Colors.black)),
                   );
                 }).toList(),
               ),
@@ -372,108 +403,119 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password', labelStyle: TextStyle(color: Colors.black)),
+                decoration: const InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.black)),
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: _isLoading ? null : () async {
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  String email = _emailController.text.trim();
-                  String name = _nameController.text.trim();
-                  String contactNumber = _contactNumberController.text.trim();
-                  String password = _passwordController.text;
-
-                  try {
-                    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
-
-                    if (userCredential.user != null) {
-                      await FirebaseAuth.instance.signOut();
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: 'iamadmin@gmail.com',
-                        password: 'admin@123',
-                      );
-
-                      if (_image != null) {
-                        String fileName = "${DateTime
-                            .now()
-                            .millisecondsSinceEpoch}.jpg";
-                        firebase_storage.Reference storageReference = firebase_storage
-                            .FirebaseStorage.instance
-                            .ref()
-                            .child("security_profile")
-                            .child(fileName);
-
-                        await storageReference.putFile(_image!);
-
-                        String downloadURL = await storageReference.getDownloadURL();
-
-                        await FirebaseFirestore.instance.collection('users').doc(email).set({
-                          'email': email,
-                          'name': name,
-                          'phone': contactNumber,
-                          'userType': 'security',
-                          'dob': _securityDobController.text,
-                          'age': _securityAgeController.text,
-                          'gender': _selectedGender,
-                          'profileImageURL': downloadURL,
+                onPressed: _isLoading
+                    ? null
+                    : () async {
+                        setState(() {
+                          _isLoading = true;
                         });
 
-                        _resetAddSecurityFields();
-                      }
+                        String email = _emailController.text.trim();
+                        String name = _nameController.text.trim();
+                        String contactNumber =
+                            _contactNumberController.text.trim();
+                        String password = _passwordController.text;
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Security added successfully!'),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Error adding security. Please try again.'),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                    }
-                  } on FirebaseAuthException catch (e) {
-                    if (e.code == 'email-already-in-use') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('The email address is already in use. Please choose a different one.'),
-                          duration: Duration(seconds: 3),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error: $e'),
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
-                    }
-                  }
+                        try {
+                          UserCredential userCredential = await FirebaseAuth
+                              .instance
+                              .createUserWithEmailAndPassword(
+                            email: email,
+                            password: password,
+                          );
 
-                  setState(() {
-                    _isLoading = false;
-                  });
+                          if (userCredential.user != null) {
+                            await FirebaseAuth.instance.signOut();
+                            await FirebaseAuth.instance
+                                .signInWithEmailAndPassword(
+                              email: 'iamadmin@gmail.com',
+                              password: 'admin@123',
+                            );
 
-                  _tabController.animateTo(0);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black
-                ),
+                            if (_image != null) {
+                              String fileName =
+                                  "${DateTime.now().millisecondsSinceEpoch}.jpg";
+                              firebase_storage.Reference storageReference =
+                                  firebase_storage.FirebaseStorage.instance
+                                      .ref()
+                                      .child("security_profile")
+                                      .child(fileName);
+
+                              await storageReference.putFile(_image!);
+
+                              String downloadURL =
+                                  await storageReference.getDownloadURL();
+
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(email)
+                                  .set({
+                                'email': email,
+                                'name': name,
+                                'phone': contactNumber,
+                                'userType': 'security',
+                                'dob': _securityDobController.text,
+                                'age': _securityAgeController.text,
+                                'gender': _selectedGender,
+                                'profileImageURL': downloadURL,
+                              });
+
+                              _resetAddSecurityFields();
+                            }
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Security added successfully!'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Error adding security. Please try again.'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } on FirebaseAuthException catch (e) {
+                          if (e.code == 'email-already-in-use') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'The email address is already in use. Please choose a different one.'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: $e'),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        }
+
+                        setState(() {
+                          _isLoading = false;
+                        });
+
+                        _tabController.animateTo(0);
+                      },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                 child: _isLoading
                     ? CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(gold),
-                  strokeWidth: 3.0,
-                )
-                    : Text('Add Security',style: TextStyle(color: gold)),
+                        valueColor: AlwaysStoppedAnimation<Color>(gold),
+                        strokeWidth: 3.0,
+                      )
+                    : Text('Add Security', style: TextStyle(color: gold)),
               ),
             ],
           ),
@@ -531,16 +573,20 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
     img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
 
     File compressedImageFile =
-    File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+        File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
     await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
 
     return compressedImageFile;
   }
 
-
   String calculateAge(DateTime dob) {
     final today = DateTime.now();
-    int age = today.year - dob.year - ((today.month > dob.month || (today.month == dob.month && today.day >= dob.day)) ? 0 : 1);
+    int age = today.year -
+        dob.year -
+        ((today.month > dob.month ||
+                (today.month == dob.month && today.day >= dob.day))
+            ? 0
+            : 1);
     return age.toString();
   }
 

@@ -416,13 +416,46 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
             .delete();
       }
 
-      // Delete visitor document from Firestore
-      await FirebaseFirestore.instance
-          .collection('visitors')
-          .doc(visitorId)
-          .delete();
+
+      // Create a batch to perform multiple operations
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+
+      // Delete subcollections
+      await _deleteSubcollections(visitorId, batch);
+
+      // Delete the main document
+      batch.delete(FirebaseFirestore.instance.collection('visitors').doc(visitorId));
+
+      // Commit the batched writes
+      await batch.commit();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Visitor deleted successfully.'),
+          duration: Duration(seconds: 2), // Adjust duration as needed
+        ),
+      );
     } catch (error) {
       print('Error during delete: $error');
     }
   }
+
+  Future<void> _deleteSubcollections(String documentId, WriteBatch batch) async {
+    // Define the names of subcollections
+    List<String> subcollectionNames = ['check_in', 'check_out'];
+
+    // Iterate through each subcollection and delete its documents
+    for (String subcollectionName in subcollectionNames) {
+      QuerySnapshot subcollectionSnapshot = await FirebaseFirestore.instance
+          .collection('visitors')
+          .doc(documentId)
+          .collection(subcollectionName)
+          .get();
+
+      for (DocumentSnapshot document in subcollectionSnapshot.docs) {
+        batch.delete(document.reference);
+      }
+    }
+  }
+
 }

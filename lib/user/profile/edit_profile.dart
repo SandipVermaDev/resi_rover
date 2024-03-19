@@ -178,8 +178,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _updateUserProfile,
         backgroundColor: gold,
-        icon: Icon(Icons.update),
-        label: Text('Update'),
+        icon: const Icon(Icons.update),
+        label: const Text('Update'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

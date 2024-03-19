@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:resi_rover/screens/login_page.dart';
 import 'package:resi_rover/screens/splash_screen.dart';
@@ -37,6 +39,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+Color gold = const Color(0xFFD7B504);
+
 class ChooseScreen extends StatelessWidget {
   const ChooseScreen({super.key});
 
@@ -54,11 +58,10 @@ class ChooseScreen extends StatelessWidget {
               builder: (context, userTypeSnapshot) {
                 if (userTypeSnapshot.connectionState ==
                     ConnectionState.waiting) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Color(0xFFD7B504)),
-                        strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(gold),
+                      strokeWidth: 3.0,
                     ),
                   );
                 } else if (userTypeSnapshot.hasError) {
@@ -72,6 +75,9 @@ class ChooseScreen extends StatelessWidget {
                     return const UserHomePage();
                   } else if (userType == 'security') {
                     return const SecurityHomePage();
+                  } else if (userType == 'disabled') {
+                    deleteUserData(context, email);
+                    return const LoginAndRegisterScreen();
                   } else {
                     return const UserForm();
                   }
@@ -86,6 +92,66 @@ class ChooseScreen extends StatelessWidget {
         }
       },
     );
+  }
+
+  Future<void> deleteUserData(BuildContext context, String email) async {
+    try {
+      // Show dialog box
+      Future.delayed(Duration.zero, () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.black,
+              title: Text('Account Deleted', style: TextStyle(color: gold)),
+              content: Text('Your account has been deleted by admin.',
+                  style: TextStyle(color: gold)),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async {
+                    // Delete profile image from Firebase Storage
+                    DocumentSnapshot userSnapshot = await FirebaseFirestore
+                        .instance
+                        .collection('users')
+                        .doc(email)
+                        .get();
+                    String? profileImageURL =
+                        userSnapshot.get('profileImageURL');
+
+                    // Delete visitor profile image from Firebase Storage if exists
+                    if (profileImageURL != null && profileImageURL.isNotEmpty) {
+                      await firebase_storage.FirebaseStorage.instance
+                          .refFromURL(profileImageURL)
+                          .delete();
+                    }
+
+                    // Delete user document from Firestore
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(email)
+                        .delete();
+
+                    // Delete Firebase account
+                    User? user = FirebaseAuth.instance.currentUser;
+                    if (user != null) {
+                      print("Deleting Firebase account for user: ${user.uid}");
+                      await user.delete();
+                      print("Firebase account deleted successfully");
+                    }
+
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    } catch (e) {
+      print("Error deleting user data: $e");
+    }
   }
 
   Future<String?> getUserTypeFromFirestore(

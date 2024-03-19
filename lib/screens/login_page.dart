@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:resi_rover/admin/admin_dashboard.dart';
-import 'package:resi_rover/security/security_homepage.dart';
-import 'package:resi_rover/user/user_homepage.dart';
+import 'package:resi_rover/main.dart';
 import '../auth/firebase_auth.dart';
 import 'forgot_password_screen.dart';
 import '../user/userform.dart';
@@ -176,113 +173,78 @@ class _LoginAndRegisterScreenState extends State<LoginAndRegisterScreen> {
   Widget loginRegisterButton() {
     return Padding(
       padding: const EdgeInsets.only(top: 31, bottom: 31, left: 30, right: 30),
-      child: MaterialButton(
-        onPressed: email.isEmpty || password.isEmpty || showLoading
-            ? null
-            : () async {
-                if (!mounted) return;
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        child: MaterialButton(
+          onPressed: email.isEmpty || password.isEmpty || showLoading
+              ? null
+              : () async {
+                  if (!mounted) return;
 
-                setState(() {
-                  showLoading = true;
-                });
+                  setState(() {
+                    showLoading = true;
+                  });
 
-                try {
-                  if (loginScreenVisible) {
-                    await AuthClass().signIn(email, password);
+                  try {
+                    if (loginScreenVisible) {
+                      await AuthClass().signIn(email, password);
 
-                    String? userType = await getUserTypeFromFirestore(email);
-
-                    if (userType == 'admin') {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const AdminDashboard()));
-                    } else if (userType == 'user') {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const UserHomePage()));
-                    } else if (userType == 'security') {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SecurityHomePage()));
+                              builder: (_) => const ChooseScreen()));
+
+                    } else {
+                      await AuthClass().register(email, password);
+
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (_) => const UserForm()));
                     }
-                  } else {
-                    await AuthClass().register(email, password);
-
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (_) => const UserForm()));
+                  } on FirebaseAuthException catch (e) {
+                    print("Error: ${e.message}");
+                    if (e.code == 'email-already-in-use') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('User already exists')),
+                      );
+                    } else if (e.code == 'wrong-password' ||
+                        e.code == 'user-not-found') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Invalid email or password')),
+                      );
+                    } else if (e.code == 'invalid-email') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('The email address is badly formatted')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text('Authentication failed: ${e.message}')),
+                      );
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        showLoading = false;
+                      });
+                    }
                   }
-                } on FirebaseAuthException catch (e) {
-                  print("Error: ${e.message}");
-                  if (e.code == 'email-already-in-use') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User already exists')),
-                    );
-                  } else if (e.code == 'wrong-password' ||
-                      e.code == 'user-not-found') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Invalid email or password')),
-                    );
-                  } else if (e.code == 'invalid-email') {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text('The email address is badly formatted')),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Authentication failed: ${e.message}')),
-                    );
-                  }
-                } finally {
-                  if (mounted) {
-                    setState(() {
-                      showLoading = false;
-                    });
-                  }
-                }
-              },
-        padding: const EdgeInsets.symmetric(vertical: 13),
-        minWidth: double.infinity,
-        color: Colors.black,
-        disabledColor: Colors.black45,
-        textColor: gold,
-        child: Text(
-          loginScreenVisible ? 'Login' : 'Register',
-          style: const TextStyle(fontSize: 15),
+                },
+          padding: const EdgeInsets.symmetric(vertical: 13),
+          minWidth: double.infinity,
+          color: Colors.black,
+          disabledColor: Colors.black45,
+          textColor: gold,
+          child: Text(
+            loginScreenVisible ? 'Login' : 'Register',
+            style: const TextStyle(fontSize: 15),
+          ),
         ),
       ),
     );
-  }
-
-  Future<String?> getUserTypeFromFirestore(String email) async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        return querySnapshot.docs.first['userType'];
-      } else {
-        return null;
-      }
-    } catch (e) {
-      print("Error retrieving user type from Firestore: $e");
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error retrieving user type from Firestore: $e"),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-
-      return null;
-    }
   }
 
   Widget toggleIconButton() {

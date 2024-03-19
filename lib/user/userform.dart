@@ -31,6 +31,8 @@ class _UserFormState extends State<UserForm> {
 
   Color gold = const Color(0xFFD7B504);
 
+  bool _isSubmitting = false;
+
   InputDecoration textFieldDecoration(String labelText) {
     return InputDecoration(
       labelText: labelText,
@@ -181,10 +183,23 @@ class _UserFormState extends State<UserForm> {
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
-                backgroundColor: gold,
+                backgroundColor: _isSubmitting ? Colors.grey : gold,
               ),
-              child:
-                  const Text('Continue', style: TextStyle(color: Colors.black)),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(
+                    'Continue',
+                    style: TextStyle(
+                      color: _isSubmitting ? Colors.black : Colors.black,
+                    ),
+                  ),
+                  if (_isSubmitting)
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(gold),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
@@ -241,7 +256,7 @@ class _UserFormState extends State<UserForm> {
     img.Image image = img.decodeImage(Uint8List.fromList(imageBytes))!;
 
     File compressedImageFile =
-    File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
+        File(imageFile.path.replaceAll('.jpg', '_compressed.jpg'));
     await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
 
     return compressedImageFile;
@@ -326,8 +341,6 @@ class _UserFormState extends State<UserForm> {
       return false;
     }
 
-    // Add additional validations for other fields as needed
-
     return true;
   }
 
@@ -340,43 +353,53 @@ class _UserFormState extends State<UserForm> {
   }
 
   Future<void> sendUserDataToDB() async {
-    final FirebaseAuth auth = FirebaseAuth.instance;
-    var currentUser = auth.currentUser;
+    setState(() {
+      _isSubmitting = true;
+    });
 
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection("users");
+    try {
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      var currentUser = auth.currentUser;
 
-    if (_image != null) {
-      String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
-      firebase_storage.Reference storageReference = firebase_storage
-          .FirebaseStorage.instance
-          .ref()
-          .child("profile_images")
-          .child(fileName);
+      CollectionReference collectionRef =
+          FirebaseFirestore.instance.collection("users");
 
-      await storageReference.putFile(_image!);
+      if (_image != null) {
+        String fileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+        firebase_storage.Reference storageReference = firebase_storage
+            .FirebaseStorage.instance
+            .ref()
+            .child("profile_images")
+            .child(fileName);
 
-      String downloadURL = await storageReference.getDownloadURL();
+        await storageReference.putFile(_image!);
 
-      await collectionRef.doc(currentUser!.email).set({
-        "name": nameController.text,
-        "phone": phoneNumberController.text,
-        "wing": wingController.text,
-        "flat": flatController.text,
-        "dob": dobController.text,
-        "gender": genderController.text,
-        "age": ageController.text,
-        "profileImageURL": downloadURL,
-        "userType": "user",
-        "email": currentUser.email,
+        String downloadURL = await storageReference.getDownloadURL();
+
+        await collectionRef.doc(currentUser!.email).set({
+          "name": nameController.text,
+          "phone": phoneNumberController.text,
+          "wing": wingController.text,
+          "flat": flatController.text,
+          "dob": dobController.text,
+          "gender": genderController.text,
+          "age": ageController.text,
+          "profileImageURL": downloadURL,
+          "userType": "user",
+          "email": currentUser.email,
+        });
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const UserHomePage()),
+        );
+      } else {
+        showValidationSnackBar('Please select a profile image');
+      }
+
+      setState(() {
+        _isSubmitting = false;
       });
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const UserHomePage()),
-      );
-    } else {
-      showValidationSnackBar('Please select a profile image');
-    }
+    } catch (error) {}
   }
 }

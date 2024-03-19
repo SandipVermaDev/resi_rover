@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:resi_rover/admin/visitors/visitors_history.dart';
-import 'package:resi_rover/admin/visitors/visitors_today.dart';
+import 'package:resi_rover/user/visitors/visitors_history.dart';
+import 'package:resi_rover/user/visitors/visitors_today.dart';
 
 class VisitorsPage extends StatefulWidget {
   const VisitorsPage({super.key});

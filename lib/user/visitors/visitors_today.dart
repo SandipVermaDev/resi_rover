@@ -1,18 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:intl/intl.dart';
 
 Color gold = const Color(0xFFD7B504);
 
-class VisitorsHistoryTab extends StatefulWidget {
-  const VisitorsHistoryTab({super.key});
+class VisitorsTodayTab extends StatefulWidget {
+  const VisitorsTodayTab({super.key});
 
   @override
-  _VisitorsHistoryTabState createState() => _VisitorsHistoryTabState();
+  _VisitorsTodayTabState createState() => _VisitorsTodayTabState();
 }
 
-class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
+class _VisitorsTodayTabState extends State<VisitorsTodayTab> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,15 +43,34 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
                 var visitorDataList = snapshot.data!;
 
                 // Sort visitors based on check-in time
-                visitorDataList.sort((a, b) => (b['checkInData']['checkInTime']
-                as Timestamp)
-                    .compareTo(a['checkInData']['checkInTime'] as Timestamp));
+                visitorDataList.sort((a, b) {
+                  var aCheckInTime =
+                      a['checkInData']['checkInTime'] as Timestamp?;
+                  var bCheckInTime =
+                      b['checkInData']['checkInTime'] as Timestamp?;
+                  var aCheckOutTime =
+                      a['checkOutData']['checkOutTime'] as Timestamp?;
+                  var bCheckOutTime =
+                      b['checkOutData']['checkOutTime'] as Timestamp?;
+
+                  if (aCheckInTime != null && bCheckInTime != null) {
+                    return bCheckInTime.compareTo(aCheckInTime);
+                  } else if (aCheckOutTime != null && bCheckOutTime != null) {
+                    return bCheckOutTime.compareTo(aCheckOutTime);
+                  } else if (aCheckInTime != null && bCheckOutTime != null) {
+                    return bCheckOutTime.compareTo(aCheckInTime);
+                  } else if (aCheckOutTime != null && bCheckInTime != null) {
+                    return bCheckInTime.compareTo(aCheckOutTime);
+                  } else {
+                    // Handle null values here
+                    return 0;
+                  }
+                });
 
                 return ListView.builder(
                   itemCount: visitorDataList.length,
                   itemBuilder: (context, index) {
                     var visitorData = visitorDataList[index];
-                    var visitorId = visitorData['visitorId'];
                     var visitorName = visitorData['name'];
                     var visitorPhone = visitorData['phone'];
                     var visitorProfileImageURL = visitorData['profileImageURL'];
@@ -113,13 +132,6 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
                                       ),
                                     ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_rounded),
-                                    color: Colors.red,
-                                    onPressed: () {
-                                      _confirmDelete(context, visitorId);
-                                    },
-                                  ),
                                 ],
                               ),
                               Column(
@@ -147,17 +159,16 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 15)),
                               const SizedBox(height: 4),
-                              if(status == 'check out')
-                                ...[
-                                  const SizedBox(height: 4),
-                                  Text(
-                                      'Check Out Time: ${_formatTimestamp(checkOutTime)}',
-                                      style:
-                                      TextStyle(color: gold, fontSize: 15)),
-                                  Text('Check Out By: $securityCheckOut',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 15)),
-                                ],
+                              if (status == 'check out') ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                    'Check Out Time: ${_formatTimestamp(checkOutTime)}',
+                                    style:
+                                        TextStyle(color: gold, fontSize: 15)),
+                                Text('Check Out By: $securityCheckOut',
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 15)),
+                              ],
                             ],
                           ),
                         ),
@@ -184,16 +195,30 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
   }
 
   Stream<List<Map<String, dynamic>>> _fetchTodayVisitorsData(
-      List<DocumentSnapshot> visitorDocs) {
+    List<DocumentSnapshot> visitorDocs,
+  ) {
     return Stream.fromFuture(Future.wait(visitorDocs.map((doc) async {
       var visitorId = doc.id;
       var visitorData = doc.data() as Map<String, dynamic>;
+
+      // Retrieve current user's wing and flat information
+      var currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        var userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.email)
+          .get();
+
+      var currentUserWing = userSnapshot['wing'];
+      var currentUserFlat = userSnapshot['flat'];
 
       // Fetch latest check-in data
       var checkInSnapshot = await FirebaseFirestore.instance
           .collection('visitors')
           .doc(visitorId)
           .collection('check_in')
+          .where('checkInTime', isGreaterThanOrEqualTo: _todayStartTimestamp())
+          .where('checkInTime', isLessThanOrEqualTo: _todayEndTimestamp())
           .orderBy('checkInTime', descending: true)
           .limit(1)
           .get();
@@ -203,6 +228,8 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
           .collection('visitors')
           .doc(visitorId)
           .collection('check_out')
+          .where('checkOutTime', isGreaterThanOrEqualTo: _todayStartTimestamp())
+          .where('checkOutTime', isLessThanOrEqualTo: _todayEndTimestamp())
           .orderBy('checkOutTime', descending: true)
           .limit(1)
           .get();
@@ -211,38 +238,85 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
       Map<String, dynamic> checkInData = {};
       Map<String, dynamic> checkOutData = {};
 
-      // Check if check-in data exists
+      // Check if check-in data exists and is today
       if (checkInSnapshot.docs.isNotEmpty) {
-        checkInData = checkInSnapshot.docs.first.data();
+        var checkInTime =
+            checkInSnapshot.docs.first['checkInTime'] as Timestamp?;
+        if (_isToday(checkInTime)) {
+          checkInData = checkInSnapshot.docs.first.data();
+        }
       }
 
-      // Check if check-out data exists
+      // Check if check-out data exists and is today
       if (checkOutSnapshot.docs.isNotEmpty) {
-        checkOutData = checkOutSnapshot.docs.first.data();
+        var checkOutTime =
+            checkOutSnapshot.docs.first['checkOutTime'] as Timestamp?;
+        if (_isToday(checkOutTime)) {
+          /*var checkInSnapshot = await FirebaseFirestore.instance
+              .collection('visitors')
+              .doc(visitorId)
+              .collection('check_in')
+              .orderBy('checkInTime', descending: true)
+              .limit(1)
+              .get();*/
+
+          checkInData = checkInSnapshot.docs.first.data();
+          checkOutData = checkOutSnapshot.docs.first.data();
+        }
       }
 
-      return {
-        'visitorId': visitorId,
-        'name': visitorData['name'],
-        'phone': visitorData['phone'],
-        'profileImageURL': visitorData['profileImageURL'],
-        'wing': visitorData['wing'],
-        'flat': visitorData['flat'],
-        'purpose': visitorData['purpose'],
-        'checkInData': checkInData,
-        'checkOutData': checkOutData,
-        'status': visitorData['status'],
-      };
-    })));
+      // Check if visitor has either check-in or check-out data for today
+      if (checkInData.isNotEmpty || checkOutData.isNotEmpty) {
+        if (visitorData['wing'] == currentUserWing &&
+            visitorData['flat'] == currentUserFlat) {
+          return {
+            'visitorId': visitorId,
+            'name': visitorData['name'],
+            'phone': visitorData['phone'],
+            'profileImageURL': visitorData['profileImageURL'],
+            'wing': visitorData['wing'],
+            'flat': visitorData['flat'],
+            'purpose': visitorData['purpose'],
+            'checkInData': checkInData,
+            'checkOutData': checkOutData,
+            'status': visitorData['status'],
+          };
+        }
+      }
+      }
+      return null;
+    }))).map((dataList) => dataList.whereType<Map<String, dynamic>>().toList());
   }
 
+  bool _isToday(Timestamp? timestamp) {
+    if (timestamp != null) {
+      var now = DateTime.now();
+      var todayStart = DateTime(now.year, now.month, now.day);
+      var todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+      var dateTime = timestamp.toDate();
+      return dateTime.isAfter(todayStart) && dateTime.isBefore(todayEnd);
+    }
+    return false;
+  }
+
+  Timestamp _todayStartTimestamp() {
+    var now = DateTime.now();
+    return Timestamp.fromDate(
+        DateTime(now.year, now.month, now.day, 0, 0, 0, 0));
+  }
+
+  Timestamp _todayEndTimestamp() {
+    var now = DateTime.now();
+    return Timestamp.fromDate(
+        DateTime(now.year, now.month, now.day, 23, 59, 59, 999));
+  }
 
   Future<void> _showVisitorDetailsPopup(
-      BuildContext context,
-      Map<String, dynamic> visitorData,
-      Map<String, dynamic> checkInData,
-      Map<String, dynamic> checkOutData,
-      ) async {
+    BuildContext context,
+    Map<String, dynamic> visitorData,
+    Map<String, dynamic> checkInData,
+    Map<String, dynamic> checkOutData,
+  ) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -280,7 +354,7 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
                   const SizedBox(height: 20),
                   Text('Check In Details:',
                       style:
-                      TextStyle(color: gold, fontWeight: FontWeight.bold)),
+                          TextStyle(color: gold, fontWeight: FontWeight.bold)),
                   if (checkInData.isNotEmpty) // Changed the condition here
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,101 +406,4 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
       },
     );
   }
-
-  Future<void> _confirmDelete(BuildContext context, String visitorId) async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.black87,
-          title: Text('Confirm Delete', style: TextStyle(color: gold)),
-          content: Text('Are you sure you want to delete this visitor?',
-              style: TextStyle(color: gold)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel',
-                  style: TextStyle(fontSize: 18, color: Colors.white)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _handleDelete(visitorId);
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                Colors.red, // Use a different color for the delete button
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-              child: const Text('Delete',
-                  style: TextStyle(fontSize: 15, color: Colors.white)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _handleDelete(String visitorId) async {
-    try {
-      // Fetch visitor profile image URL from Firestore
-      DocumentSnapshot visitorSnapshot = await FirebaseFirestore.instance
-          .collection('visitors')
-          .doc(visitorId)
-          .get();
-      String? profileImageURL = visitorSnapshot.get('profileImageURL');
-
-      // Delete visitor profile image from Firebase Storage if exists
-      if (profileImageURL != null && profileImageURL.isNotEmpty) {
-        await firebase_storage.FirebaseStorage.instance
-            .refFromURL(profileImageURL)
-            .delete();
-      }
-
-
-      // Create a batch to perform multiple operations
-      WriteBatch batch = FirebaseFirestore.instance.batch();
-
-      // Delete subcollections
-      await _deleteSubcollections(visitorId, batch);
-
-      // Delete the main document
-      batch.delete(FirebaseFirestore.instance.collection('visitors').doc(visitorId));
-
-      // Commit the batched writes
-      await batch.commit();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Visitor deleted successfully.'),
-          duration: Duration(seconds: 2), // Adjust duration as needed
-        ),
-      );
-    } catch (error) {
-      print('Error during delete: $error');
-    }
-  }
-
-  Future<void> _deleteSubcollections(String documentId, WriteBatch batch) async {
-    // Define the names of subcollections
-    List<String> subcollectionNames = ['check_in', 'check_out'];
-
-    // Iterate through each subcollection and delete its documents
-    for (String subcollectionName in subcollectionNames) {
-      QuerySnapshot subcollectionSnapshot = await FirebaseFirestore.instance
-          .collection('visitors')
-          .doc(documentId)
-          .collection(subcollectionName)
-          .get();
-
-      for (DocumentSnapshot document in subcollectionSnapshot.docs) {
-        batch.delete(document.reference);
-      }
-    }
-  }
-
 }
