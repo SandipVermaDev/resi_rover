@@ -83,24 +83,16 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            radius: 40,
+                            radius: 30,
                             backgroundImage: visitorProfileImageURL != null
                                 ? NetworkImage(visitorProfileImageURL)
                                 : null,
                           ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Name: $visitorName',
-                                    style: TextStyle(color: gold, fontSize: 18),
-                                  ),
-                                ],
-                              ),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(
@@ -127,6 +119,15 @@ class _VisitorsHistoryTabState extends State<VisitorsHistoryTab> {
                                     onPressed: () {
                                       _confirmDelete(context, visitorId);
                                     },
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Name: $visitorName',
+                                    style: TextStyle(color: gold, fontSize: 18),
                                   ),
                                 ],
                               ),

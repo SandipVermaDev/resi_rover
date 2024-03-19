@@ -37,102 +37,104 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
         iconTheme: IconThemeData(color: gold),
         backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 50),
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: gold,
-                backgroundImage: _image != null ? FileImage(_image!) : null,
-                child: _image == null
-                    ? const Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Colors.black,
-                      )
-                    : null,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 50),
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: gold,
+                  backgroundImage: _image != null ? FileImage(_image!) : null,
+                  child: _image == null
+                      ? const Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.black,
+                        )
+                      : null,
+                ),
               ),
-            ),
-            const SizedBox(height: 40),
-            TextFormField(
-              controller: nameController,
-              decoration: _inputDecoration('Name'),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: phoneController,
-              decoration: _inputDecoration('Phone'),
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(10),
-              ],
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a phone number';
-                }
-                if (value.length != 10) {
-                  return 'Phone number must be 10 digits';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: wingController,
-                    decoration: _inputDecoration('Wing'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextFormField(
-                    controller: flatController,
-                    decoration: _inputDecoration('Flat'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: purposeController,
-              decoration: _inputDecoration('Purpose'),
-            ),
-            const SizedBox(height: 100),
-            _isUploading
-                ? CircularProgressIndicator(
-                    color: gold,
-                  )
-                : ElevatedButton.icon(
-                    onPressed: () async {
-                      setState(() {
-                        _isUploading = true;
-                      });
-                      await _addVisitor();
-                      setState(() {
-                        _isUploading = false;
-                      });
-                    },
-                    icon: const Icon(Icons.input),
-                    label: const Text('Check In'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 40),
-                      foregroundColor: Colors.black,
-                      backgroundColor: gold,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
+              const SizedBox(height: 40),
+              TextFormField(
+                controller: nameController,
+                decoration: _inputDecoration('Name'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: phoneController,
+                decoration: _inputDecoration('Phone'),
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a phone number';
+                  }
+                  if (value.length != 10) {
+                    return 'Phone number must be 10 digits';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: wingController,
+                      decoration: _inputDecoration('Wing'),
                     ),
                   ),
-          ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: flatController,
+                      decoration: _inputDecoration('Flat'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: purposeController,
+                decoration: _inputDecoration('Purpose'),
+              ),
+              const SizedBox(height: 100),
+              _isUploading
+                  ? CircularProgressIndicator(
+                      color: gold,
+                    )
+                  : ElevatedButton.icon(
+                      onPressed: () async {
+                        setState(() {
+                          _isUploading = true;
+                        });
+                        await _addVisitor();
+                        setState(() {
+                          _isUploading = false;
+                        });
+                      },
+                      icon: const Icon(Icons.input),
+                      label: const Text('Check In'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 40),
+                        foregroundColor: Colors.black,
+                        backgroundColor: gold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+            ],
+          ),
         ),
       ),
     );

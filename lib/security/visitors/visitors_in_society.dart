@@ -78,24 +78,16 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            radius: 40,
+                            radius: 30,
                             backgroundImage: visitorProfileImageURL != null
                                 ? NetworkImage(visitorProfileImageURL)
                                 : null,
                           ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Name: $visitorName',
-                                    style: TextStyle(color: gold, fontSize: 18),
-                                  ),
-                                ],
-                              ),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   ElevatedButton(
                                     onPressed: () {
@@ -119,6 +111,16 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
                                     onPressed: () {
                                       _confirmDelete(context, visitorId);
                                     },
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Name: $visitorName',
+                                    style: TextStyle(color: gold, fontSize: 18),
                                   ),
                                 ],
                               ),
