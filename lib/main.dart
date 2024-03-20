@@ -134,9 +134,7 @@ class ChooseScreen extends StatelessWidget {
                     // Delete Firebase account
                     User? user = FirebaseAuth.instance.currentUser;
                     if (user != null) {
-                      print("Deleting Firebase account for user: ${user.uid}");
                       await user.delete();
-                      print("Firebase account deleted successfully");
                     }
 
                     Navigator.of(context).pop();

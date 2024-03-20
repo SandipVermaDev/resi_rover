@@ -21,8 +21,6 @@ class UserForm extends StatefulWidget {
 class _UserFormState extends State<UserForm> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
-  TextEditingController wingController = TextEditingController();
-  TextEditingController flatController = TextEditingController();
   DateTime? selectedDate;
   TextEditingController dobController = TextEditingController();
   TextEditingController genderController = TextEditingController();
@@ -32,6 +30,41 @@ class _UserFormState extends State<UserForm> {
   Color gold = const Color(0xFFD7B504);
 
   bool _isSubmitting = false;
+
+  String? selectedWing;
+  String? selectedFlat;
+
+  List<String> wings = [];
+  Map<String, List<String>> flatsPerWing = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWingsAndFlats();
+  }
+
+  Future<void> _fetchWingsAndFlats() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('residencies').get();
+      for (var doc in snapshot.docs) {
+        var data = doc.data();
+
+        Map<String, List<dynamic>> wingsAndFlats =
+            Map<String, List<dynamic>>.from(data['wingsAndFlats']);
+
+        wingsAndFlats.forEach((wing, flats) {
+          wings.add(wing);
+          for (var flat in flats) {
+            flatsPerWing.putIfAbsent(wing, () => []).add(flat);
+          }
+        });
+      }
+      setState(() {});
+    } catch (e) {
+      print("Error fetching wings and flats: $e");
+    }
+  }
 
   InputDecoration textFieldDecoration(String labelText) {
     return InputDecoration(
@@ -110,16 +143,42 @@ class _UserFormState extends State<UserForm> {
             Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: wingController,
+                  child: DropdownButtonFormField<String>(
+                    dropdownColor: Colors.black87,
+                    borderRadius: BorderRadius.circular(20),
+                    value: selectedWing,
+                    items: wings.map((wing) {
+                      return DropdownMenuItem<String>(
+                        value: wing,
+                        child: Text(wing, style: TextStyle(color: gold)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedWing = value;
+                      });
+                    },
                     decoration: textFieldDecoration('Wing'),
                     style: TextStyle(color: gold),
                   ),
                 ),
                 const SizedBox(width: 10), // Adjust the spacing as needed
                 Expanded(
-                  child: TextField(
-                    controller: flatController,
+                  child: DropdownButtonFormField<String>(
+                    dropdownColor: Colors.black87,
+                    borderRadius: BorderRadius.circular(20),
+                    value: selectedFlat,
+                    items: flatsPerWing[selectedWing ?? '']?.map((flat) {
+                      return DropdownMenuItem<String>(
+                        value: flat,
+                        child: Text(flat, style: TextStyle(color: gold)),
+                      );
+                    }).toList() ?? [],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedFlat = value;
+                      });
+                    },
                     decoration: textFieldDecoration('Flat'),
                     style: TextStyle(color: gold),
                   ),
@@ -326,13 +385,13 @@ class _UserFormState extends State<UserForm> {
       return false;
     }
 
-    if (flatController.text.isEmpty) {
-      showValidationSnackBar('Please enter flat');
+    if (selectedWing == null) {
+      showValidationSnackBar('Please select your wing');
       return false;
     }
 
-    if (wingController.text.isEmpty) {
-      showValidationSnackBar('Please enter wing');
+    if (selectedFlat == null) {
+      showValidationSnackBar('Please select your flat');
       return false;
     }
 
@@ -379,8 +438,8 @@ class _UserFormState extends State<UserForm> {
         await collectionRef.doc(currentUser!.email).set({
           "name": nameController.text,
           "phone": phoneNumberController.text,
-          "wing": wingController.text,
-          "flat": flatController.text,
+          "wing": selectedWing,
+          "flat": selectedFlat,
           "dob": dobController.text,
           "gender": genderController.text,
           "age": ageController.text,

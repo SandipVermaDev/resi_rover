@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:resi_rover/admin/complaint/complaint_page.dart';
 import 'package:resi_rover/admin/maid/maid_page.dart';
 import 'package:resi_rover/admin/notice&events/notice_event_page.dart';
+import 'package:resi_rover/admin/resi_info/residential_info.dart';
 import 'package:resi_rover/admin/security/security_page.dart';
 import 'package:resi_rover/admin/users/users_page.dart';
 import 'package:resi_rover/admin/voting/voting_page.dart';
@@ -29,6 +30,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text('Admin Dashboard',style: TextStyle(color: Color(0xFFD7B504)),),
         backgroundColor: Colors.black,
         iconTheme: IconThemeData(color: gold),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline, color: gold),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ResidentialInfoPage()),
+              );
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: Container(
@@ -36,16 +48,52 @@ class _AdminDashboardState extends State<AdminDashboard> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
+              DrawerHeader(
+                decoration: const BoxDecoration(
                   color: Colors.black87,
                 ),
-                child: Text(
-                  'Admin Menu',
-                  style: TextStyle(
-                    color: Color(0xFFD7B504),
-                    fontSize: 24,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Admin Menu',
+                      style: TextStyle(
+                        color: Color(0xFFD7B504),
+                        fontSize: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ResidentialInfoPage()),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: gold),
+                              const SizedBox(width: 16.0),
+                              const Text(
+                                'Residency Info',
+                                style: TextStyle(
+                                  color: Color(0xFFD7B504),
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
@@ -75,9 +123,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Material(
         color: Colors.black,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           onTap: () {
             _selectSection(section);
           },
@@ -113,7 +161,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     // Navigate to the corresponding page
     switch (_selectedSection) {
       case 'Users':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => UsersPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const UsersPage()));
         break;
       case 'Chat':
         Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatPage()));
@@ -134,7 +182,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         Navigator.push(context, MaterialPageRoute(builder: (_) => const MaidPage()));
         break;
       case 'Visitors':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => VisitorsPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const VisitorsPage()));
         break;
       case 'Logout':
         try {

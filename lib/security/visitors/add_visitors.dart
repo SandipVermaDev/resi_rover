@@ -19,11 +19,45 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
   Color gold = const Color(0xFFD7B504);
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  TextEditingController wingController = TextEditingController();
-  TextEditingController flatController = TextEditingController();
   TextEditingController purposeController = TextEditingController();
   File? _image;
   bool _isUploading = false;
+
+  String? selectedWing;
+  String? selectedFlat;
+
+  List<String> wings = [];
+  Map<String, List<String>> flatsPerWing = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchWingsAndFlats();
+  }
+
+  Future<void> _fetchWingsAndFlats() async {
+    try {
+      final snapshot =
+      await FirebaseFirestore.instance.collection('residencies').get();
+      for (var doc in snapshot.docs) {
+        var data = doc.data();
+
+        Map<String, List<dynamic>> wingsAndFlats =
+        Map<String, List<dynamic>>.from(data['wingsAndFlats']);
+
+        wingsAndFlats.forEach((wing, flats) {
+          wings.add(wing);
+          for (var flat in flats) {
+            flatsPerWing.putIfAbsent(wing, () => []).add(flat);
+          }
+        });
+      }
+      setState(() {});
+    } catch (e) {
+      print("Error fetching wings and flats: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +121,44 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      controller: wingController,
+                    child: DropdownButtonFormField<String>(
+                      dropdownColor: gold,
+                      borderRadius: BorderRadius.circular(20),
+                      value: selectedWing,
+                      items: wings.map((wing) {
+                        return DropdownMenuItem<String>(
+                          value: wing,
+                          child: Text(wing, style: const TextStyle(color: Colors.black)),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedWing = value;
+                        });
+                      },
                       decoration: _inputDecoration('Wing'),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 10), // Adjust the spacing as needed
                   Expanded(
-                    child: TextFormField(
-                      controller: flatController,
+                    child: DropdownButtonFormField<String>(
+                      dropdownColor: gold,
+                      borderRadius: BorderRadius.circular(20),
+                      value: selectedFlat,
+                      items: flatsPerWing[selectedWing ?? '']?.map((flat) {
+                        return DropdownMenuItem<String>(
+                          value: flat,
+                          child: Text(flat, style: const TextStyle(color: Colors.black)),
+                        );
+                      }).toList() ?? [],
+                      onChanged: (value) {
+                        setState(() {
+                          selectedFlat = value;
+                        });
+                      },
                       decoration: _inputDecoration('Flat'),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
                 ],
@@ -235,8 +297,8 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
           'profileImageURL': imageUrl,
           'name': nameController.text,
           'phone': phoneController.text,
-          'wing': wingController.text,
-          'flat': flatController.text,
+          "wing": selectedWing,
+          "flat": selectedFlat,
           'purpose': purposeController.text,
           'status': 'check in',
         });
@@ -255,12 +317,11 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
         Navigator.of(context).pop();
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => VisitorsPage()),
+          MaterialPageRoute(builder: (context) => const VisitorsPage()),
         );
         //Navigator.of(context).pop();
       }
     } catch (error) {
-      print('Error adding visitor: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to check in visitor')),
       );
@@ -276,7 +337,6 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
       TaskSnapshot snapshot = await uploadTask;
       return await snapshot.ref.getDownloadURL();
     } catch (error) {
-      print('Error uploading image: $error');
       rethrow;
     }
   }

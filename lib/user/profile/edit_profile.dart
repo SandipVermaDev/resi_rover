@@ -22,8 +22,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
-  TextEditingController wingController = TextEditingController();
-  TextEditingController flatController = TextEditingController();
   DateTime? selectedDate;
   TextEditingController dobController = TextEditingController();
   TextEditingController genderController = TextEditingController();
@@ -52,8 +50,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _profileImageURL = userData['profileImageURL'];
           nameController.text = userData['name'] ?? '';
           phoneNumberController.text = userData['phone'] ?? '';
-          wingController.text = userData['wing'] ?? '';
-          flatController.text = userData['flat'] ?? '';
           dobController.text = userData['dob'] ?? '';
           genderController.text = userData['gender'] ?? '';
           ageController.text = userData['age'] ?? '';
@@ -104,26 +100,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               keyboardType: TextInputType.phone,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               maxLength: 10,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: wingController,
-                    decoration: textFieldDecoration('Wing'),
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: flatController,
-                    decoration: textFieldDecoration('Flat'),
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                ),
-              ],
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -378,8 +354,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         "profileImageURL": imageUrl ?? _profileImageURL,
         "name": nameController.text,
         "phone": phoneNumberController.text,
-        "wing": wingController.text,
-        "flat": flatController.text,
         "dob": dobController.text,
         "gender": genderController.text,
         "age": ageController.text,
