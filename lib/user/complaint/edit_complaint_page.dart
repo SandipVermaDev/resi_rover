@@ -33,7 +33,7 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.black54,
-      title: Text('Edit Notice', style: TextStyle(color: gold)),
+      title: Text('Edit Complaint', style: TextStyle(color: gold)),
       content: SingleChildScrollView(
         child: Column(
           children: [

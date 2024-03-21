@@ -36,15 +36,59 @@ class _UserHomePageState extends State<UserHomePage> {
     _currentUser = FirebaseAuth.instance.currentUser;
 
     if (_currentUser != null) {
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+      FirebaseFirestore.instance
           .collection('users')
           .doc(_currentUser!.email)
-          .get();
-
-      setState(() {
-        _userProfileImageUrl = userSnapshot['profileImageURL'] ?? '';
+          .snapshots()
+          .listen((DocumentSnapshot userSnapshot) async {
+        if (userSnapshot.exists) {
+          if (userSnapshot['userType'] == 'disabled') {
+            await _showAccountDeletedDialog();
+            await AuthClass().auth.signOut();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ChooseScreen()),
+            );
+          } else {
+            setState(() {
+              _userProfileImageUrl = userSnapshot['profileImageURL'] ?? '';
+            });
+          }
+        }
       });
     }
+  }
+
+  Future<void> _showAccountDeletedDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: gold,
+            title: const Text('Account Deleted',style: TextStyle(color: Colors.black)),
+            content: const SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('Your account has been deleted by the admin.',style: TextStyle(color: Colors.black)),
+                  Text('Please contact the admin for further assistance.',style: TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK',style: TextStyle(fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override

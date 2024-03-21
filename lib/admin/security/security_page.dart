@@ -32,6 +32,7 @@ class _SecurityPageState extends State<SecurityPage>
   DateTime? _selectedDate;
   String? _selectedGender;
 
+  bool isPasswordVisible = false;
   bool _isLoading = false;
 
   final Color gold = const Color(0xFFD7B504);
@@ -243,12 +244,6 @@ class _SecurityPageState extends State<SecurityPage>
 
     if (confirmed == true) {
       try {
-        /*if (profileImageURL.isNotEmpty) {
-          await firebase_storage.FirebaseStorage.instance.refFromURL(profileImageURL).delete();
-        }
-
-        await FirebaseFirestore.instance.collection('users').doc(userId).delete();*/
-
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
@@ -288,6 +283,7 @@ class _SecurityPageState extends State<SecurityPage>
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: gold,
+                  backgroundImage: _image != null ? FileImage(_image!) : null,
                   child: _image == null
                       ? const Icon(
                           Icons.person,
@@ -295,7 +291,6 @@ class _SecurityPageState extends State<SecurityPage>
                           color: Colors.black,
                         )
                       : null,
-                  backgroundImage: _image != null ? FileImage(_image!) : null,
                 ),
               ),
               TextField(
@@ -402,10 +397,24 @@ class _SecurityPageState extends State<SecurityPage>
               const SizedBox(height: 16.0),
               TextField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: TextStyle(color: Colors.black)),
+                obscureText: !isPasswordVisible,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: const TextStyle(color: Colors.black),
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 40),
               ElevatedButton(
@@ -467,6 +476,8 @@ class _SecurityPageState extends State<SecurityPage>
                               });
 
                               _resetAddSecurityFields();
+
+                              _tabController.animateTo(0);
                             }
 
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -506,10 +517,11 @@ class _SecurityPageState extends State<SecurityPage>
                         setState(() {
                           _isLoading = false;
                         });
-
-                        _tabController.animateTo(0);
                       },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20))),
                 child: _isLoading
                     ? CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(gold),
@@ -528,7 +540,7 @@ class _SecurityPageState extends State<SecurityPage>
     await showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 150,
           child: Column(
             children: [

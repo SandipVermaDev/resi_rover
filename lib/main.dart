@@ -77,7 +77,7 @@ class ChooseScreen extends StatelessWidget {
                     return const SecurityHomePage();
                   } else if (userType == 'disabled') {
                     deleteUserData(context, email);
-                    return const LoginAndRegisterScreen();
+                    return const SizedBox();
                   } else {
                     return const UserForm();
                   }
@@ -97,15 +97,16 @@ class ChooseScreen extends StatelessWidget {
   Future<void> deleteUserData(BuildContext context, String email) async {
     try {
       // Show dialog box
-      Future.delayed(Duration.zero, () {
+     Future.delayed(Duration.zero, () {
         showDialog(
           context: context,
+          barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              backgroundColor: Colors.black,
-              title: Text('Account Deleted', style: TextStyle(color: gold)),
-              content: Text('Your account has been deleted by admin.',
-                  style: TextStyle(color: gold)),
+              backgroundColor: gold,
+              title: const Text('Account Deleted', style: TextStyle(color: Colors.black)),
+              content: const Text('Your account has been deleted by admin.',
+                  style: TextStyle(color: Colors.black)),
               actions: <Widget>[
                 TextButton(
                   onPressed: () async {
@@ -116,7 +117,7 @@ class ChooseScreen extends StatelessWidget {
                         .doc(email)
                         .get();
                     String? profileImageURL =
-                        userSnapshot.get('profileImageURL');
+                    userSnapshot.get('profileImageURL');
 
                     // Delete visitor profile image from Firebase Storage if exists
                     if (profileImageURL != null && profileImageURL.isNotEmpty) {
@@ -137,8 +138,7 @@ class ChooseScreen extends StatelessWidget {
                       await user.delete();
                     }
 
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                   child: const Text('OK'),
                 ),
