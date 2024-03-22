@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:resi_rover/admin/resi_info/add_residency.dart';
+import 'package:resi_rover/admin/resi_info/edit_residency.dart';
 
 class ResidentialInfoPage extends StatefulWidget {
   const ResidentialInfoPage({super.key});
@@ -114,19 +115,104 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddResidencyPage()),
-          );
+      floatingActionButton: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance.collection('residencies').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Loading state
+            return FloatingActionButton(
+              onPressed: () {},
+              backgroundColor: Colors.black,
+              child: Icon(Icons.add, color: gold),
+            );
+          } else if (snapshot.hasError) {
+            // Error state
+            return FloatingActionButton(
+              onPressed: () {},
+              backgroundColor: Colors.black,
+              child: Icon(Icons.add, color: gold),
+            );
+          } else {
+            final List<DocumentSnapshot> documents = snapshot.data!.docs;
+            final bool residencyExists = documents.isNotEmpty;
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton.extended(
+                  onPressed: () {
+                    if (residencyExists) {
+                      // Navigate to edit page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => EditResidencyPage(residencyData: documents[0].data() as Map<String, dynamic>)),
+                      );
+                    } else {
+                      // Navigate to add page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddResidencyPage()),
+                      );
+                    }
+                  },
+                  backgroundColor: Colors.black,
+                  icon: Icon(residencyExists ? Icons.edit : Icons.add, color: gold),
+                  label: Text(residencyExists ? 'Edit' : 'Add', style: TextStyle(color: gold)),
+                ),
+              ],
+            );
+          }
         },
-        backgroundColor: Colors.black,
-        child: Icon(
-          Icons.add,
-          color: gold,
-        ),
       ),
+
+      /*floatingActionButton: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: FirebaseFirestore.instance.collection('residencies').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return FloatingActionButton(
+              onPressed: () {},
+              backgroundColor: Colors.black,
+              child: Icon(
+                Icons.add,
+                color: gold,
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return FloatingActionButton(
+              onPressed: () {},
+              backgroundColor: Colors.black,
+              child: Icon(
+                Icons.add,
+                color: gold,
+              ),
+            );
+          } else {
+            final List<DocumentSnapshot> documents = snapshot.data!.docs;
+            final bool residencyExists = documents.isNotEmpty;
+            return FloatingActionButton(
+              onPressed: () {
+                if (residencyExists) {
+                  // Navigate to edit page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditResidencyPage(residencyData: documents[0].data() as Map<String, dynamic>)),
+                  );
+                } else {
+                  // Navigate to add page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddResidencyPage()),
+                  );
+                }
+              },
+              backgroundColor: Colors.black,
+              child: Icon(
+                Icons.add,
+                color: gold,
+              ),
+            );
+          }
+        },
+      ),*/
     );
   }
 }
