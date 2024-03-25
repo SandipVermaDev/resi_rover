@@ -24,47 +24,22 @@ class _AddNoticePageState extends State<AddNoticePage> {
         iconTheme: IconThemeData(color: gold),
       ),
       body: Container(
-        color: Colors.grey,
+        color: Colors.grey.shade400,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Title',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              TextField(
+              const SizedBox(height: 40),
+              TextFormField(
                 controller: _titleController,
-                style: TextStyle(fontSize: 18, color: gold),
-                decoration: InputDecoration(
-                  hintText: 'Enter the notice title',
-                  hintStyle: TextStyle(color: Colors.amber.shade300),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: gold),
-                  ),
-                  filled: true,
-                  fillColor: Colors.black,
-                ),
+                decoration: _inputDecoration('Title'),
               ),
               const SizedBox(height: 16.0),
-              const Text(
-                'Description',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              TextField(
+              TextFormField(
                 controller: _descriptionController,
-                style: TextStyle(fontSize: 18, color: gold),
                 maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: 'Enter the notice description',
-                  hintStyle: TextStyle(color: Colors.amber.shade300),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: gold),
-                  ),
-                  filled: true,
-                  fillColor: Colors.black,
-                ),
+                decoration: _inputDecoration('Description'),
               ),
               const SizedBox(height: 100),
               ElevatedButton(
@@ -103,6 +78,23 @@ class _AddNoticePageState extends State<AddNoticePage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }

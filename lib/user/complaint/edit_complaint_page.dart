@@ -32,8 +32,8 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.black54,
-      title: Text('Edit Complaint', style: TextStyle(color: gold)),
+      backgroundColor: Colors.grey.shade400,
+      title: const Text('Edit Complaint', style: TextStyle(color: Colors.black)),
       content: SingleChildScrollView(
         child: Column(
           children: [
@@ -43,18 +43,18 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
               decoration: InputDecoration(
                 labelText: 'Complaint Title',
                 filled: true,
-                fillColor: Colors.black87,
-                labelStyle: TextStyle(color: gold),
+                fillColor: Colors.black26,
+                labelStyle: const TextStyle(color: Colors.black),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
-                  borderSide: const BorderSide(color: Colors.white, width: 2.0),
+                  borderSide: const BorderSide(color: Colors.black, width: 2.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
                   borderSide: BorderSide(color: gold, width: 2.0),
                 ),
               ),
-              style: TextStyle(color: gold),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -62,18 +62,18 @@ class _EditComplaintPageState extends State<EditComplaintPage> {
               decoration: InputDecoration(
                 labelText: 'Complaint Details',
                 filled: true,
-                fillColor: Colors.black87,
-                labelStyle: TextStyle(color: gold),
+                fillColor: Colors.black26,
+                labelStyle: const TextStyle(color: Colors.black),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
-                  borderSide: const BorderSide(color: Colors.white, width: 2.0),
+                  borderSide: const BorderSide(color: Colors.black, width: 2.0),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
                   borderSide: BorderSide(color: gold, width: 2.0),
                 ),
               ),
-              style: TextStyle(color: gold),
+              style: const TextStyle(color: Colors.black),
               maxLines: 5,
             ),
             const SizedBox(height: 100),

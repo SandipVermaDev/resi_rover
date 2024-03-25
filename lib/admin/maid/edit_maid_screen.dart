@@ -62,15 +62,12 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
           const SizedBox(height: 20),
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(
-                labelText: 'Name', labelStyle: TextStyle(color: Colors.black)),
+            decoration: _inputDecoration('Name'),
           ),
           const SizedBox(height: 16.0),
           TextField(
             controller: _contactNumberController,
-            decoration: const InputDecoration(
-                labelText: 'Contact Number',
-                labelStyle: TextStyle(color: Colors.black)),
+            decoration: _inputDecoration('Contact Number'),
             keyboardType: TextInputType.phone,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             maxLength: 10,
@@ -83,9 +80,8 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                 _selectedGender = value;
               });
             },
-            decoration: const InputDecoration(
-                labelText: 'Gender',
-                labelStyle: TextStyle(color: Colors.black)),
+            decoration: _inputDecoration('Gender'),
+            borderRadius: BorderRadius.circular(20),
             dropdownColor: const Color(0xFFFFB41A),
             items: ['Male', 'Female', 'Other']
                 .map<DropdownMenuItem<String>>((String value) {
@@ -133,7 +129,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
             child: AbsorbPointer(
               child: TextFormField(
                 controller: _maidDobController,
-                decoration: const InputDecoration(labelText: 'Date of Birth'),
+                decoration: _inputDecoration('Date of Birth'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please select the date of birth';
@@ -146,7 +142,7 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
           const SizedBox(height: 16.0),
           TextFormField(
             controller: _maidAgeController,
-            decoration: const InputDecoration(labelText: 'Age'),
+            decoration: _inputDecoration('Age'),
             readOnly: true,
           ),
           const SizedBox(height: 40),
@@ -181,6 +177,23 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }
@@ -259,14 +272,11 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
   }
 
   Future<void> _saveChanges() async {
-    // Accessing data from DocumentSnapshot
     var data = widget.maidData.data() as Map<String, dynamic>;
 
-    // Get the current maid ID
     String maidId = widget.maidData.id;
 
     if (_image != null) {
-      // Delete old image from Firebase Storage
       if (data['profileImageURL'] != null) {
         firebase_storage.Reference oldImageReference = firebase_storage
             .FirebaseStorage.instance
@@ -286,13 +296,11 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
 
       String downloadURL = await storageReference.getDownloadURL();
 
-      // Update image URL in Firestore
       await FirebaseFirestore.instance.collection('maids').doc(maidId).update({
         'profileImageURL': downloadURL,
       });
     }
 
-    // Update other fields in Firestore
     await FirebaseFirestore.instance.collection('maids').doc(maidId).update({
       'name': _nameController.text,
       'contactNumber': _contactNumberController.text,

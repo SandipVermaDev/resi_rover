@@ -31,7 +31,8 @@ class _LoginAndRegisterScreenState extends State<LoginAndRegisterScreen> {
           loginScreenVisible ? 'Login' : 'Signup',
           style: TextStyle(color: gold),
         ),
-        backgroundColor: Colors.black, // Updated app bar color
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: gold),
       ),
       body: Stack(
         children: [
@@ -110,10 +111,10 @@ class _LoginAndRegisterScreenState extends State<LoginAndRegisterScreen> {
         onChanged: (value) {
           setState(() {
             if (label == 'Email') {
-              email = value;
+              email = value.trim();
             }
             if (label == 'Password') {
-              password = value;
+              password = value.trim();
             }
           });
         },

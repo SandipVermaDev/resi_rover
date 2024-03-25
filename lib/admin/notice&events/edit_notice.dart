@@ -18,15 +18,11 @@ class _EditNoticeDialogState extends State<EditNoticeDialog> {
   @override
   void initState() {
     super.initState();
-    // Initialize controllers
     titleController = TextEditingController();
     descriptionController = TextEditingController();
-
-    // Fetch notice details when the dialog is created
     _fetchNoticeDetails();
   }
 
-  // Function to fetch notice details from Firebase
   void _fetchNoticeDetails() async {
     try {
       var noticeSnapshot =
@@ -37,7 +33,6 @@ class _EditNoticeDialogState extends State<EditNoticeDialog> {
         var title = noticeData['title'];
         var description = noticeData['description'];
 
-        // Set the fetched values to the controllers
         titleController.text = title ?? '';
         descriptionController.text = description ?? '';
       }
@@ -49,27 +44,21 @@ class _EditNoticeDialogState extends State<EditNoticeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.black54,
-      title: Text('Edit Notice', style: TextStyle(color: gold)),
+      backgroundColor: Colors.grey.shade400,
+      title: const Text('Edit Notice', style: TextStyle(color: Colors.black)),
       content: SingleChildScrollView(
         child: Column(
           children: [
+            const SizedBox(height: 20),
             TextFormField(
               controller: titleController,
-              style: TextStyle(color: gold),
-              decoration: InputDecoration(
-                labelText: 'Title',
-                labelStyle: TextStyle(color: gold,fontSize: 20),
-              ),
+              decoration: _inputDecoration('Title'),
             ),
+            const SizedBox(height: 15),
             TextFormField(
               controller: descriptionController,
               maxLines: 5,
-              style: TextStyle(color: gold),
-              decoration: InputDecoration(
-                labelText: 'Description',
-                labelStyle: TextStyle(color: gold,fontSize: 20),
-              ),
+              decoration: _inputDecoration('Description'),
             ),
           ],
         ),
@@ -77,19 +66,35 @@ class _EditNoticeDialogState extends State<EditNoticeDialog> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context); // Close the dialog
+            Navigator.pop(context);
           },
-          child: Text('Cancel', style: TextStyle(color: gold)),
+          child: const Text('Cancel', style: TextStyle(color: Colors.blueGrey)),
         ),
         TextButton(
           onPressed: () {
-            // Implement logic to save changes for notices
             _saveChanges();
-            Navigator.pop(context); // Close the dialog after saving changes
+            Navigator.pop(context);
           },
-          child: Text('Save', style: TextStyle(color: gold)),
+          child: Text('Save', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
         ),
       ],
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
+      ),
     );
   }
 
@@ -115,7 +120,7 @@ class _EditNoticeDialogState extends State<EditNoticeDialog> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Notice updated successfully!'),
             duration: Duration(seconds: 3),
           ),
@@ -126,7 +131,7 @@ class _EditNoticeDialogState extends State<EditNoticeDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating notice: $e'),
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }

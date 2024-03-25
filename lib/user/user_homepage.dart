@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:resi_rover/common/chat/chat_page.dart';
+import 'package:resi_rover/common/slider/carousel_slider.dart';
 import 'package:resi_rover/user/complaint/complaint_page.dart';
 import 'package:resi_rover/user/profile/user_profile.dart';
 import 'package:resi_rover/user/voting/voting_page.dart';
@@ -101,7 +102,7 @@ class _UserHomePageState extends State<UserHomePage> {
       ),
       drawer: Drawer(
         child: Container(
-          color: Colors.grey,
+          color: Colors.grey.shade400,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
@@ -157,8 +158,16 @@ class _UserHomePageState extends State<UserHomePage> {
       ),
       body: Container(
         padding: const EdgeInsets.all(16),
-        color: Colors.grey,
-        child: _buildGridView(),
+        color: Colors.grey.shade400,
+        child: Column(
+          children: [
+            const ResidencyCarousel(),
+            const SizedBox(height: 20),
+            Expanded(
+              child: _buildGridView(),
+            ),
+          ],
+        ),
       ),
     );
   }

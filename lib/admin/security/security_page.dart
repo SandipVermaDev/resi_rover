@@ -93,7 +93,7 @@ class _SecurityPageState extends State<SecurityPage>
 
   Widget _buildViewAllTab() {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: StreamBuilder<QuerySnapshot>(
@@ -129,62 +129,67 @@ class _SecurityPageState extends State<SecurityPage>
                 var email = securityData['email'];
                 var contactNumber = securityData['phone'];
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: profileImageURL != null
-                            ? NetworkImage(profileImageURL)
-                            : null,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                return GestureDetector(
+                  onTap: () {
+                    _showSecurityDetailsDialog(context, securityData);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: profileImageURL != null
+                              ? NetworkImage(profileImageURL)
+                              : null,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Name :$name',
+                                  style: TextStyle(
+                                      color: gold, fontWeight: FontWeight.bold)),
+                              Text('Email: $email',
+                                  style: TextStyle(color: gold)),
+                              Text('Ph No: $contactNumber',
+                                  style: TextStyle(color: gold)),
+                            ],
+                          ),
+                        ),
+                        Row(
                           children: [
-                            Text('Name :$name',
-                                style: TextStyle(
-                                    color: gold, fontWeight: FontWeight.bold)),
-                            Text('Email: $email',
-                                style: TextStyle(color: gold)),
-                            Text('Ph No: $contactNumber',
-                                style: TextStyle(color: gold)),
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              color: gold,
+                              onPressed: () {
+                                _editSecurity(securityDocs[index]);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              color: gold,
+                              onPressed: () {
+                                _deleteSecurity(
+                                  userId: securityDocs[index].id,
+                                  profileImageURL:
+                                      securityData['profileImageURL'],
+                                );
+                              },
+                            ),
                           ],
                         ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            color: gold,
-                            onPressed: () {
-                              _editSecurity(securityDocs[index]);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            color: gold,
-                            onPressed: () {
-                              _deleteSecurity(
-                                userId: securityDocs[index].id,
-                                profileImageURL:
-                                    securityData['profileImageURL'],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -200,13 +205,49 @@ class _SecurityPageState extends State<SecurityPage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: gold,
+          backgroundColor: Colors.grey.shade400,
           title: const Text('Edit Security',
               style:
                   TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           content: EditSecurityScreen(
             securityData: securityData,
           ),
+        );
+      },
+    );
+  }
+
+  void _showSecurityDetailsDialog(BuildContext context, Map<String, dynamic> securityData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text('Security Details', style: TextStyle(color: gold)),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (securityData['profileImageURL'] != null)
+                  Image.network(securityData['profileImageURL'], height: 200),
+                const SizedBox(height: 10),
+                Text('Name: ${securityData['name']}', style: TextStyle(color: gold)),
+                Text('Email: ${securityData['email']}', style: TextStyle(color: gold)),
+                Text('Phone: ${securityData['phone']}', style: TextStyle(color: gold)),
+                Text('Date of Birth: ${securityData['dob']}', style: TextStyle(color: gold)),
+                Text('Age: ${securityData['age']}', style: TextStyle(color: gold)),
+                Text('Gender: ${securityData['gender']}', style: TextStyle(color: gold)),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         );
       },
     );
@@ -271,7 +312,7 @@ class _SecurityPageState extends State<SecurityPage>
 
     return SingleChildScrollView(
       child: Container(
-        color: Colors.grey,
+        color: Colors.grey.shade400,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -293,25 +334,20 @@ class _SecurityPageState extends State<SecurityPage>
                       : null,
                 ),
               ),
+              const SizedBox(height: 40),
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Email'),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Name'),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _contactNumberController,
-                decoration: const InputDecoration(
-                    labelText: 'Contact Number',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Contact Number'),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 maxLength: 10,
@@ -353,9 +389,7 @@ class _SecurityPageState extends State<SecurityPage>
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _securityDobController,
-                    decoration: const InputDecoration(
-                        labelText: 'Date of Birth',
-                        labelStyle: TextStyle(color: Colors.black)),
+                    decoration: _inputDecoration('Date of Birth'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please select the date of birth';
@@ -368,9 +402,7 @@ class _SecurityPageState extends State<SecurityPage>
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _securityAgeController,
-                decoration: const InputDecoration(
-                    labelText: 'Age',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Age'),
                 readOnly: true,
               ),
               const SizedBox(height: 16.0),
@@ -381,9 +413,8 @@ class _SecurityPageState extends State<SecurityPage>
                     _selectedGender = value;
                   });
                 },
-                decoration: const InputDecoration(
-                    labelText: 'Gender',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Gender'),
+                borderRadius: BorderRadius.circular(20),
                 dropdownColor: gold,
                 items:
                     genderOptions.map<DropdownMenuItem<String>>((String value) {
@@ -401,6 +432,16 @@ class _SecurityPageState extends State<SecurityPage>
                 decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: const TextStyle(color: Colors.black),
+                  filled: true,
+                  fillColor: Colors.black26,
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: const BorderSide(color: Colors.black),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                    borderSide: BorderSide(color: gold),
+                  ),
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
@@ -532,6 +573,23 @@ class _SecurityPageState extends State<SecurityPage>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }

@@ -17,20 +17,19 @@ class _AddVoteDialogState extends State<AddVoteDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: gold,
+      backgroundColor: Colors.grey.shade400,
       title: const Text('Add Vote', style: TextStyle(color: Colors.black)),
       content: SizedBox(
         width: double.maxFinite,
-        height: 400.0, // Adjust the height as needed
+        height: 400.0,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 20),
               TextFormField(
                 controller: titleController,
-                decoration: const InputDecoration(
-                    labelText: 'Voting Title',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Title'),
               ),
               const SizedBox(height: 16.0),
               Column(
@@ -93,11 +92,14 @@ class _AddVoteDialogState extends State<AddVoteDialog> {
 
   Widget _buildVotingOptionField(
       int optionNumber, TextEditingController controller) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-          labelText: 'Option $optionNumber',
-          labelStyle: const TextStyle(color: Colors.black)),
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        TextFormField(
+          controller: controller,
+          decoration: _inputDecoration('Option $optionNumber'),
+        ),
+      ],
     );
   }
 
@@ -150,6 +152,23 @@ class _AddVoteDialogState extends State<AddVoteDialog> {
         );
       }
     }
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
+      ),
+    );
   }
 
   List<int> _initializeVoteCounts(List<String> options) {

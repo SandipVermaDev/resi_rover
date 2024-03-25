@@ -17,7 +17,7 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('visitors')
@@ -50,6 +50,15 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
                 visitorDataList.sort((a, b) => (b['checkInData']['checkInTime']
                         as Timestamp)
                     .compareTo(a['checkInData']['checkInTime'] as Timestamp));
+
+                if (visitorDataList.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No visitors in Society',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  );
+                }
 
                 return ListView.builder(
                   itemCount: visitorDataList.length,
@@ -402,7 +411,6 @@ class _VisitorsInSocietyTabState extends State<VisitorsInSocietyTab> {
 
   Future<void> _handleDelete(String visitorId) async {
     try {
-      // Fetch visitor profile image URL from Firestore
       DocumentSnapshot visitorSnapshot = await FirebaseFirestore.instance
           .collection('visitors')
           .doc(visitorId)

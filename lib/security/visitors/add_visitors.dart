@@ -62,7 +62,7 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
         title: Text(
           'Add Visitor',
@@ -77,7 +77,7 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 50),
+              const SizedBox(height: 60),
               GestureDetector(
                 onTap: _pickImage,
                 child: CircleAvatar(
@@ -93,7 +93,7 @@ class _AddVisitorPageState extends State<AddVisitorPage> {
                       : null,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 50),
               TextFormField(
                 controller: nameController,
                 decoration: _inputDecoration('Name'),

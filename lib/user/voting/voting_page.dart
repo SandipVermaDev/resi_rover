@@ -32,7 +32,7 @@ class _VotingPageState extends State<VotingPage> {
 
   Widget _buildVotingList() {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('votes').snapshots(),
         builder: (context, snapshot) {
@@ -71,7 +71,7 @@ class _VotingPageState extends State<VotingPage> {
 
               return Card(
                 elevation: 3,
-                margin: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
                 color: Colors.black,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),

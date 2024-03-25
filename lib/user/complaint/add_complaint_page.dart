@@ -23,7 +23,7 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
         iconTheme: IconThemeData(color: gold),
       ),
       body: Container(
-        color: Colors.grey,
+        color: Colors.grey.shade400,
         child: Padding(
           padding: const EdgeInsets.all(30.0),
           child: Column(

@@ -24,7 +24,7 @@ class _UsersPageState extends State<UsersPage> {
       body: Builder(builder: (BuildContext context) {
         scaffoldContext = context;
         return Container(
-          color: Colors.grey,
+          color: Colors.grey.shade400,
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
@@ -60,8 +60,7 @@ class _UsersPageState extends State<UsersPage> {
                       _showUserDetailsPopup(context, userData);
                     },
                     child: Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 16.0),
+                      margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
                       color: Colors.black,
                       elevation: 2.0,
                       shape: RoundedRectangleBorder(

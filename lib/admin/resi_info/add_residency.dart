@@ -29,7 +29,7 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
         title: Text('Add Residency', style: TextStyle(color: gold)),
         backgroundColor: Colors.black,
@@ -54,7 +54,12 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
                 for (int i = 0; i < wingControllers.length; i++)
                   _buildWingAndFlatField(
                       i + 1, wingControllers[i], flatControllers[i]),
-                const SizedBox(height: 8.0),
+                const SizedBox(height: 16.0),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 FloatingActionButton(
                   onPressed: _addWingAndFlat,
                   mini: true,
@@ -62,27 +67,47 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
                   heroTag: 'addWingAndFlatButton',
                   child: Icon(Icons.add, color: gold),
                 ),
-                const SizedBox(height: 16.0),
+                if (wingControllers.length > 1)
+                  FloatingActionButton(
+                    onPressed: () =>
+                        _removeWing(wingControllers.last, flatControllers),
+                    mini: true,
+                    backgroundColor: Colors.red,
+                    heroTag: 'removeWingButton',
+                    child: const Icon(Icons.remove, color: Colors.white),
+                  ),
               ],
             ),
+            const SizedBox(height: 16.0),
             const SizedBox(height: 20),
             const Text('Images:',
                 style: TextStyle(color: Colors.black, fontSize: 18)),
             if (images.isNotEmpty) ...[
-              //const Text('Selected Images:'),
               SizedBox(
-                height: 250,
+                height: 200,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
                   itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Image.file(
-                        images[index],
-                        fit: BoxFit.cover,
-                        width: 400,
-                      ),
+                    return Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Image.file(
+                            images[index],
+                            fit: BoxFit.cover,
+                            width: 400,
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: IconButton(
+                            icon: Icon(Icons.delete, color: gold),
+                            onPressed: () => _removeImage(index),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -150,9 +175,20 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
                     const SizedBox(height: 8)
                   ],
                 ),
-              IconButton(
-                onPressed: () => _addFlat(flatControllers),
-                icon: const Icon(Icons.add, color: Colors.black),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () => _addFlat(flatControllers),
+                    icon: const Icon(Icons.add, color: Colors.black),
+                  ),
+                  if (flatControllers.length > 1)
+                    IconButton(
+                      onPressed: () => _removeFlat(
+                          flatControllers, flatControllers.length - 1),
+                      icon: const Icon(Icons.remove, color: Colors.red),
+                    ),
+                ],
               ),
               const SizedBox(height: 10)
             ],
@@ -172,6 +208,29 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
   void _addFlat(List<TextEditingController> flatControllers) {
     setState(() {
       flatControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeWing(
+    TextEditingController wingController,
+    List<List<TextEditingController>> flatControllers,
+  ) {
+    setState(() {
+      int index = wingControllers.indexOf(wingController);
+      wingControllers.removeAt(index);
+      flatControllers.removeAt(index);
+    });
+  }
+
+  void _removeFlat(List<TextEditingController> flatControllers, int index) {
+    setState(() {
+      flatControllers.removeAt(index);
+    });
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      images.removeAt(index);
     });
   }
 

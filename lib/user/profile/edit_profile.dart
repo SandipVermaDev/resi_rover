@@ -63,7 +63,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
         title: Text('Edit Profile', style: TextStyle(color: gold)),
         backgroundColor: Colors.black,
@@ -133,6 +133,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ],
               dropdownColor: gold,
+              borderRadius: BorderRadius.circular(20),
               onChanged: (String? newValue) {
                 setState(() {
                   genderController.text = newValue ?? '';

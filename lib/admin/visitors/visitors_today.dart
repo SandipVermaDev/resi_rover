@@ -16,7 +16,7 @@ class _VisitorsTodayTabState extends State<VisitorsTodayTab> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('visitors').snapshots(),
         builder: (context, snapshot) {
@@ -66,6 +66,15 @@ class _VisitorsTodayTabState extends State<VisitorsTodayTab> {
                     return 0;
                   }
                 });
+
+                if (visitorDataList.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No visitors today',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  );
+                }
 
                 return ListView.builder(
                   itemCount: visitorDataList.length,

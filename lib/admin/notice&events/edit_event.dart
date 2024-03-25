@@ -56,27 +56,20 @@ class _EditEventDialogState extends State<EditEventDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.black54,
-      title: Text('Edit Event', style: TextStyle(color: gold)),
+      backgroundColor: Colors.grey.shade400,
+      title: const Text('Edit Event', style: TextStyle(color: Colors.black)),
       content: SingleChildScrollView(
         child: Column(
           children: [
-            TextField(
+            TextFormField(
               controller: _titleController,
-              style: TextStyle(color: gold),
-              decoration: InputDecoration(
-                labelText: 'Title',
-                labelStyle: TextStyle(color: gold, fontSize: 20),
-              ),
+              decoration: _inputDecoration('Title'),
             ),
-            TextField(
+            const SizedBox(height: 15),
+            TextFormField(
               controller: _descriptionController,
               maxLines: 5,
-              style: TextStyle(color: gold),
-              decoration: InputDecoration(
-                labelText: 'Description',
-                labelStyle: TextStyle(color: gold, fontSize: 20),
-              ),
+              decoration: _inputDecoration('Description'),
             ),
             const SizedBox(height: 16.0),
             TextField(
@@ -139,11 +132,7 @@ class _EditEventDialogState extends State<EditEventDialog> {
                   }
                 }
               },
-              style: TextStyle(color: gold),
-              decoration: InputDecoration(
-                labelText: 'Event Date and Time',
-                labelStyle: TextStyle(color: gold, fontSize: 20),
-              ),
+              decoration: _inputDecoration('Event Date and Time')
             ),
           ],
         ),
@@ -153,21 +142,36 @@ class _EditEventDialogState extends State<EditEventDialog> {
           onPressed: () {
             Navigator.pop(context); // Close the dialog
           },
-          child: Text('Cancel', style: TextStyle(color: gold)),
+          child: const Text('Cancel', style: TextStyle(color: Colors.blueGrey)),
         ),
         TextButton(
           onPressed: () {
-            // Implement logic to save changes for events
             _saveChanges();
-            Navigator.pop(context); // Close the dialog after saving changes
+            Navigator.pop(context);
           },
-          child: Text('Save', style: TextStyle(color: gold)),
+          child: Text('Save', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
         ),
       ],
     );
   }
 
-  // Function to save changes to the event
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
+      ),
+    );
+  }
+
   void _saveChanges() async {
     if (!mounted) {
       return;

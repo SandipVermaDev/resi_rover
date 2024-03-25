@@ -88,7 +88,7 @@ class _MaidPageState extends State<MaidPage>
 
   Widget _buildViewAllTab() {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: StreamBuilder<QuerySnapshot>(
@@ -119,64 +119,69 @@ class _MaidPageState extends State<MaidPage>
                 var age = maidData['age'];
                 var gender = maidData['gender'];
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: profileImageURL != null
-                            ? NetworkImage(profileImageURL)
-                            : null,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                return GestureDetector(
+                  onTap: () {
+                    _showMaidDetails(maidData);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: profileImageURL != null
+                              ? NetworkImage(profileImageURL)
+                              : null,
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Name: $name',
+                                  style: TextStyle(
+                                      color: gold, fontWeight: FontWeight.bold)),
+                              Text('Phone : $contactNumber',
+                                  style: TextStyle(color: gold)),
+                              Text('Date of Birth: $dob',
+                                  style: TextStyle(color: gold)),
+                              Text('Age: $age', style: TextStyle(color: gold)),
+                              Text('Gender: $gender',
+                                  style: TextStyle(color: gold)),
+                            ],
+                          ),
+                        ),
+                        Row(
                           children: [
-                            Text('Name: $name',
-                                style: TextStyle(
-                                    color: gold, fontWeight: FontWeight.bold)),
-                            Text('Phone : $contactNumber',
-                                style: TextStyle(color: gold)),
-                            Text('Date of Birth: $dob',
-                                style: TextStyle(color: gold)),
-                            Text('Age: $age', style: TextStyle(color: gold)),
-                            Text('Gender: $gender',
-                                style: TextStyle(color: gold)),
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              color: gold,
+                              onPressed: () {
+                                _editMaid(maidDocs[index]);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              color: gold,
+                              onPressed: () {
+                                _deleteMaid(
+                                  maidId: maidDocs[index].id,
+                                  profileImageURL: maidData['profileImageURL'],
+                                );
+                              },
+                            ),
                           ],
                         ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            color: gold,
-                            onPressed: () {
-                              _editMaid(maidDocs[index]);
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            color: gold,
-                            onPressed: () {
-                              _deleteMaid(
-                                maidId: maidDocs[index].id,
-                                profileImageURL: maidData['profileImageURL'],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -187,12 +192,49 @@ class _MaidPageState extends State<MaidPage>
     );
   }
 
+  void _showMaidDetails(Map<String, dynamic> maidData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text(
+            'Maid Details',
+            style: TextStyle(color: gold, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(maidData['profileImageURL'], height: 200),
+              const SizedBox(height: 20),
+              Text('Name: ${maidData['name']}', style: TextStyle(color: gold)),
+              Text('Contact Number: ${maidData['contactNumber']}', style: TextStyle(color: gold)),
+              Text('Date of Birth: ${maidData['dob']}', style: TextStyle(color: gold)),
+              Text('Age: ${maidData['age']}', style: TextStyle(color: gold)),
+              Text('Gender: ${maidData['gender']}', style: TextStyle(color: gold)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close',
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _editMaid(DocumentSnapshot maidData) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: gold,
+          backgroundColor: Colors.grey.shade400,
           title: const Text('Edit Maid',
               style:
                   TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
@@ -271,7 +313,7 @@ class _MaidPageState extends State<MaidPage>
     List<String> genderOptions = ['Male', 'Female', 'Other'];
 
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -294,19 +336,15 @@ class _MaidPageState extends State<MaidPage>
                       : null,
                 ),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 40),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                    labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Name'),
               ),
               const SizedBox(height: 16.0),
               TextField(
                 controller: _contactNumberController,
-                decoration: const InputDecoration(
-                    labelText: 'Contact Number',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Contact Number'),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 maxLength: 10,
@@ -319,10 +357,9 @@ class _MaidPageState extends State<MaidPage>
                     _selectedGender = value;
                   });
                 },
-                decoration: const InputDecoration(
-                    labelText: 'Gender',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Gender'),
                 dropdownColor: gold,
+                borderRadius: BorderRadius.circular(20),
                 items:
                     genderOptions.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
@@ -369,9 +406,7 @@ class _MaidPageState extends State<MaidPage>
                 child: AbsorbPointer(
                   child: TextFormField(
                     controller: _maidDobController,
-                    decoration: const InputDecoration(
-                        labelText: 'Date of Birth',
-                        labelStyle: TextStyle(color: Colors.black)),
+                    decoration: _inputDecoration('Date of Birth'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please select the date of birth';
@@ -384,9 +419,7 @@ class _MaidPageState extends State<MaidPage>
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _maidAgeController,
-                decoration: const InputDecoration(
-                    labelText: 'Age',
-                    labelStyle: TextStyle(color: Colors.black)),
+                decoration: _inputDecoration('Age'),
                 readOnly: true,
               ),
               const SizedBox(height: 40),
@@ -477,6 +510,23 @@ class _MaidPageState extends State<MaidPage>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }

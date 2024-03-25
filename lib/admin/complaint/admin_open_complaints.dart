@@ -25,7 +25,7 @@ class _OpenComplaintsState extends State<OpenComplaints> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('complaints')
@@ -56,7 +56,7 @@ class _OpenComplaintsState extends State<OpenComplaints> {
               DateTime? uploadTime = extractTimestamp(complaint['timestamp']);
 
               return Card(
-                margin: const EdgeInsets.all(20.0),
+                margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),

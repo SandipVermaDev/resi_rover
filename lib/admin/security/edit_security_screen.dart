@@ -63,16 +63,12 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
             const SizedBox(height: 16.0),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                  labelText: 'Name',
-                  labelStyle: TextStyle(color: Colors.black)),
+              decoration: _inputDecoration('Name'),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: _contactNumberController,
-              decoration: const InputDecoration(
-                  labelText: 'Contact Number',
-                  labelStyle: TextStyle(color: Colors.black)),
+              decoration: _inputDecoration('Contact Number'),
               keyboardType: TextInputType.phone,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               maxLength: 10,
@@ -114,9 +110,7 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
               child: AbsorbPointer(
                 child: TextFormField(
                   controller: _securityDobController,
-                  decoration: const InputDecoration(
-                      labelText: 'Date of Birth',
-                      labelStyle: TextStyle(color: Colors.black)),
+                  decoration: _inputDecoration('Date of Birth'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select the date of birth';
@@ -129,8 +123,7 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
             const SizedBox(height: 16.0),
             TextFormField(
               controller: _securityAgeController,
-              decoration: const InputDecoration(
-                  labelText: 'Age', labelStyle: TextStyle(color: Colors.black)),
+              decoration: _inputDecoration('Age'),
               readOnly: true,
             ),
             const SizedBox(height: 16.0),
@@ -141,10 +134,9 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
                   _selectedGender = value;
                 });
               },
-              decoration: const InputDecoration(
-                  labelText: 'Gender',
-                  labelStyle: TextStyle(color: Colors.black)),
+              decoration: _inputDecoration('Gender'),
               dropdownColor: gold,
+              borderRadius: BorderRadius.circular(20),
               items: ['Male', 'Female', 'Other']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
@@ -207,14 +199,11 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
   }
 
   Future<void> _saveChanges() async {
-    // Accessing data from DocumentSnapshot
     var data = widget.securityData.data() as Map<String, dynamic>;
 
-    // Get the current user ID
     String userId = widget.securityData.id;
 
     if (_image != null) {
-      // Delete old image from Firebase Storage
       if (data['profileImageURL'] != null) {
         firebase_storage.Reference oldImageReference = firebase_storage
             .FirebaseStorage.instance
@@ -240,7 +229,6 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
       });
     }
 
-    // Update other fields in Firestore
     await FirebaseFirestore.instance.collection('users').doc(userId).update({
       'name': _nameController.text,
       'phone': _contactNumberController.text,
@@ -314,6 +302,23 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
     await compressedImageFile.writeAsBytes(img.encodeJpg(image, quality: 40));
 
     return compressedImageFile;
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
+      ),
+    );
   }
 
   @override

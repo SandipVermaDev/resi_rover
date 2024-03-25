@@ -26,65 +26,28 @@ class _AddEventsPageState extends State<AddEventPage> {
         iconTheme: IconThemeData(color: gold),
       ),
       body: Container(
-        color: Colors.grey,
+        color: Colors.grey.shade400,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Title',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              TextField(
+              const SizedBox(height: 20),
+              TextFormField(
                 controller: _titleController,
-                style: TextStyle(fontSize: 18, color: gold),
-                decoration: InputDecoration(
-                  hintText: 'Enter the event title',
-                  hintStyle: TextStyle(color: Colors.amber.shade300),
-                  border:OutlineInputBorder(
-                    borderSide: BorderSide(color: gold),
-                  ),
-                  filled: true,
-                  fillColor: Colors.black,
-                ),
+                decoration: _inputDecoration('Title'),
               ),
               const SizedBox(height: 16.0),
-              const Text(
-                'Description',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              TextField(
+              TextFormField(
                 controller: _descriptionController,
-                style: TextStyle(fontSize: 18, color: gold),
                 maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: 'Enter the event description',
-                  hintStyle: TextStyle(color: Colors.amber.shade300),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: gold),
-                  ),
-                  filled: true,
-                  fillColor: Colors.black,
-                ),
+                decoration: _inputDecoration('Description'),
               ),
               const SizedBox(height: 16.0),
-              const Text(
-                'Date and Time',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
               DateTimeField(
                 format: DateFormat("yyyy-MM-dd HH:mm"),
                 style: TextStyle(color: gold),
-                decoration: InputDecoration(
-                  hintText: 'Select date and time',
-                  hintStyle: TextStyle(color: Colors.amber.shade300),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: gold),
-                  ),
-                  filled: true,
-                  fillColor: Colors.black,
-                ),
+                decoration: _inputDecoration('Date and Time'),
                 onShowPicker: (context, currentValue) async {
                   final date = await showDatePicker(
                     context: context,
@@ -190,6 +153,23 @@ class _AddEventsPageState extends State<AddEventPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }

@@ -10,7 +10,7 @@ class EditVoteDialog extends StatefulWidget {
     return List.filled(options.length, 0);
   }
 
-  EditVoteDialog({
+  const EditVoteDialog({super.key,
     required this.votingId,
     required this.title,
     required this.options,
@@ -21,7 +21,7 @@ class EditVoteDialog extends StatefulWidget {
 }
 
 class _EditVoteDialogState extends State<EditVoteDialog> {
-  TextEditingController _titleController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
 
   Color gold = const Color(0xFFD7B504);
 
@@ -30,7 +30,7 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
     _titleController.text = widget.title;
 
     return AlertDialog(
-      backgroundColor: gold,
+      backgroundColor: Colors.grey.shade400,
       title: const Text('Edit Vote', style: TextStyle(color: Colors.black)),
       content: SingleChildScrollView(
         child: Column(
@@ -38,11 +38,7 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
           children: [
             TextFormField(
               controller: _titleController,
-              //initialValue: widget.title,
-              decoration: const InputDecoration(
-                labelText: 'Voting Title',
-                labelStyle: TextStyle(color: Colors.black),
-              ),
+              decoration: _inputDecoration('Voting Title'),
             ),
             const SizedBox(height: 16.0),
             Column(
@@ -102,14 +98,34 @@ class _EditVoteDialogState extends State<EditVoteDialog> {
   Widget _buildVotingOptionField(int optionNumber, String option) {
     TextEditingController controller = TextEditingController(text: option);
 
-    return TextFormField(
-      controller: controller,
-      onChanged: (value) {
-        widget.options[optionNumber - 1] = value;
-      },
-      decoration: InputDecoration(
-        labelText: 'Option $optionNumber',
-        labelStyle: const TextStyle(color: Colors.black),
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+
+        TextFormField(
+          controller: controller,
+          onChanged: (value) {
+            widget.options[optionNumber - 1] = value;
+          },
+          decoration: _inputDecoration('Option $optionNumber')
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _inputDecoration(String labelText) {
+    return InputDecoration(
+      labelText: labelText,
+      labelStyle: const TextStyle(color: Colors.black),
+      filled: true,
+      fillColor: Colors.black26,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: const BorderSide(color: Colors.black),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        borderSide: BorderSide(color: gold),
       ),
     );
   }

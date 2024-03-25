@@ -76,7 +76,7 @@ class _NoticeEventsPageState extends State<NoticeEventsPage> with SingleTickerPr
         var noticeDocs = snapshot.data!.docs;
 
         return Container(
-          color: Colors.grey,
+          color: Colors.grey.shade400,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: ListView.builder(
@@ -188,7 +188,7 @@ class _NoticeEventsPageState extends State<NoticeEventsPage> with SingleTickerPr
         var eventDocs = snapshot.data!.docs;
 
         return Container(
-          color: Colors.grey,
+          color: Colors.grey.shade400,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: ListView.builder(

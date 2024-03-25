@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           // You can change the color to your desired background color
           color: Colors.black,
         ),

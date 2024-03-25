@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:resi_rover/auth/firebase_auth.dart';
+import 'package:resi_rover/common/slider/carousel_slider.dart';
 import 'package:resi_rover/main.dart';
 import 'package:resi_rover/security/profile/profile_page.dart';
 import 'package:resi_rover/security/users/users_page.dart';
@@ -99,7 +100,7 @@ class _SecurityHomePageState extends State<SecurityHomePage> {
       ),
       drawer: Drawer(
         child: Container(
-          color: Colors.grey,
+          color: Colors.grey.shade400,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
@@ -155,8 +156,16 @@ class _SecurityHomePageState extends State<SecurityHomePage> {
       ),
       body: Container(
         padding: const EdgeInsets.all(16),
-        color: Colors.grey,
-        child: _buildGridView(),
+        color: Colors.grey.shade400,
+        child:  Column(
+          children: [
+            const ResidencyCarousel(),
+            const SizedBox(height: 20),
+            Expanded(
+              child: _buildGridView(),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -27,7 +27,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard',style: TextStyle(color: Color(0xFFD7B504)),),
+        title: const Text(
+          'Admin Dashboard',
+          style: TextStyle(color: Color(0xFFD7B504)),
+        ),
         backgroundColor: Colors.black,
         iconTheme: IconThemeData(color: gold),
         actions: [
@@ -36,7 +39,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ResidentialInfoPage()),
+                MaterialPageRoute(
+                    builder: (context) => const ResidentialInfoPage()),
               );
             },
           ),
@@ -44,67 +48,44 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       drawer: Drawer(
         child: Container(
-          color: Colors.grey,
+          color: Colors.grey.shade400,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
+              const DrawerHeader(
+                decoration: BoxDecoration(
                   color: Colors.black87,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Admin Menu',
                       style: TextStyle(
                         color: Color(0xFFD7B504),
                         fontSize: 24,
                       ),
                     ),
-                    const SizedBox(height: 50),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ResidentialInfoPage()),
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(
-                            children: [
-                              Icon(Icons.info_outline, color: gold),
-                              const SizedBox(width: 16.0),
-                              const Text(
-                                'Residency Info',
-                                style: TextStyle(
-                                  color: Color(0xFFD7B504),
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 10),
-              _buildDrawerItem('Users', Icons.people),const SizedBox(height: 16),
-              _buildDrawerItem('Chat', Icons.chat),const SizedBox(height: 16),
-              _buildDrawerItem('Notice & Events', Icons.event),const SizedBox(height: 16),
-              _buildDrawerItem('Complaint', Icons.warning),const SizedBox(height: 16),
-              _buildDrawerItem('Voting', Icons.how_to_vote),const SizedBox(height: 16),
-              _buildDrawerItem('Security', Icons.security),const SizedBox(height: 16),
-              _buildDrawerItem('Maid',Icons.cleaning_services_rounded),const SizedBox(height: 16),
-              _buildDrawerItem('Visitors',Icons.emoji_people),const SizedBox(height: 16),
+              _buildDrawerItem('Users', Icons.people),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Chat', Icons.chat),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Notice & Events', Icons.event),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Complaint', Icons.warning),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Voting', Icons.how_to_vote),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Security', Icons.security),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Maid', Icons.cleaning_services_rounded),
+              const SizedBox(height: 16),
+              _buildDrawerItem('Visitors', Icons.emoji_people),
+              const SizedBox(height: 16),
               _buildDrawerItem('Logout', Icons.exit_to_app),
             ],
           ),
@@ -112,7 +93,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       body: Container(
         padding: const EdgeInsets.all(16),
-        color: Colors.grey,
+        color: Colors.grey.shade400,
         child: _buildGridView(),
       ),
     );
@@ -158,31 +139,38 @@ class _AdminDashboardState extends State<AdminDashboard> {
       _selectedSection = section;
     });
 
-    // Navigate to the corresponding page
     switch (_selectedSection) {
       case 'Users':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const UsersPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const UsersPage()));
         break;
       case 'Chat':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const ChatPage()));
         break;
       case 'Notice & Events':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const NoticeEventsPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const NoticeEventsPage()));
         break;
       case 'Complaint':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminComplaintPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const AdminComplaintPage()));
         break;
       case 'Voting':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const VotingPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const VotingPage()));
         break;
       case 'Security':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const SecurityPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const SecurityPage()));
         break;
       case 'Maid':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const MaidPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const MaidPage()));
         break;
       case 'Visitors':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const VisitorsPage()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const VisitorsPage()));
         break;
       case 'Logout':
         try {
@@ -190,9 +178,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const ChooseScreen()),
-          ); // Navigate to the login screen
+          );
         } catch (e) {
-
           print("Error logging out: $e");
         }
 
@@ -212,8 +199,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         _buildGridItem('Complaint', Icons.warning, Colors.red),
         _buildGridItem('Voting', Icons.how_to_vote, Colors.purple),
         _buildGridItem('Security', Icons.security, Colors.teal),
-        _buildGridItem('Maid', Icons.cleaning_services,Colors.indigo),
-        _buildGridItem('Visitors', Icons.emoji_people,Colors.brown),
+        _buildGridItem('Maid', Icons.cleaning_services, Colors.indigo),
+        _buildGridItem('Visitors', Icons.emoji_people, Colors.brown),
       ],
     );
   }

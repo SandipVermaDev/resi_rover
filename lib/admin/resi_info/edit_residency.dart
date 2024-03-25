@@ -44,11 +44,11 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
       wingControllers.add(wingController);
 
       List<TextEditingController> flatControllersForWing = [];
-      (flats as List<dynamic>).forEach((flat) {
+      for (var flat in (flats as List<dynamic>)) {
         TextEditingController flatController =
             TextEditingController(text: flat.toString());
         flatControllersForWing.add(flatController);
-      });
+      }
       flatControllers.add(flatControllersForWing);
     });
 
@@ -72,7 +72,7 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
         title: Text('Edit Residency', style: TextStyle(color: gold)),
         backgroundColor: Colors.black,
@@ -100,7 +100,6 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
                   _buildWingAndFlatField(
                       i + 1, wingControllers[i], flatControllers[i]),
                 const SizedBox(height: 10),
-
               ],
             ),
             Row(
@@ -113,13 +112,15 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
                   heroTag: 'addWingAndFlatButton',
                   child: Icon(Icons.add, color: gold),
                 ),
-                FloatingActionButton(
-                  onPressed: _removeWing,
-                  mini: true,
-                  backgroundColor: Colors.red,
-                  heroTag: 'removeWingButton',
-                  child: Icon(Icons.remove, color: Colors.white),
-                ),
+                if (wingControllers.length > 1)
+                  FloatingActionButton(
+                    onPressed: () =>
+                        _removeWing(wingControllers.last, flatControllers),
+                    mini: true,
+                    backgroundColor: Colors.red,
+                    heroTag: 'removeWingButton',
+                    child: const Icon(Icons.remove, color: Colors.white),
+                  ),
               ],
             ),
             const SizedBox(height: 16.0),
@@ -174,13 +175,25 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
                   itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: Image.file(
-                        images[index],
-                        fit: BoxFit.cover,
-                        width: 400,
-                      ),
+                    return Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: Image.file(
+                            images[index],
+                            fit: BoxFit.cover,
+                            width: 400,
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: IconButton(
+                            icon: Icon(Icons.delete, color: gold),
+                            onPressed: () => _removeImage(index),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -288,6 +301,12 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
     }
   }
 
+  void _removeImage(int index) {
+    setState(() {
+      images.removeAt(index);
+    });
+  }
+
   Widget _buildWingAndFlatField(
     int wingNumber,
     TextEditingController wingController,
@@ -350,15 +369,16 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
     });
   }
 
-  void _removeWing() {
+  void _removeWing(
+    TextEditingController wingController,
+    List<List<TextEditingController>> flatControllers,
+  ) {
     setState(() {
-      if (wingControllers.isNotEmpty) {
-        wingControllers.removeLast();
-        flatControllers.removeLast();
-      }
+      int index = wingControllers.indexOf(wingController);
+      wingControllers.removeAt(index);
+      flatControllers.removeAt(index);
     });
   }
-
 
   void _addFlat(List<TextEditingController> flatControllers) {
     setState(() {

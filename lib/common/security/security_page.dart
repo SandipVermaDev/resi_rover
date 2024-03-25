@@ -26,7 +26,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
 
   Widget _buildViewAllSecurity() {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: StreamBuilder<QuerySnapshot>(
@@ -61,34 +61,39 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                 var email = securityData['email'];
                 var contactNumber = securityData['phone'];
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Name :$name', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-                            Text('Email: $email', style: TextStyle(color: gold)),
-                            Text('Ph No: $contactNumber', style: TextStyle(color: gold)),
-                          ],
+                return GestureDetector(
+                  onTap: () {
+                    _showSecurityDetailsDialog(context, securityData);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
                         ),
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Name :$name', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
+                              Text('Email: $email', style: TextStyle(color: gold)),
+                              Text('Ph No: $contactNumber', style: TextStyle(color: gold)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -96,6 +101,42 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
           },
         ),
       ),
+    );
+  }
+
+  void _showSecurityDetailsDialog(BuildContext context, Map<String, dynamic> securityData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text('Security Details', style: TextStyle(color: gold)),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (securityData['profileImageURL'] != null)
+                  Image.network(securityData['profileImageURL'], height: 200),
+                const SizedBox(height: 10),
+                Text('Name: ${securityData['name']}', style: TextStyle(color: gold)),
+                Text('Email: ${securityData['email']}', style: TextStyle(color: gold)),
+                Text('Phone: ${securityData['phone']}', style: TextStyle(color: gold)),
+                Text('Date of Birth: ${securityData['dob']}', style: TextStyle(color: gold)),
+                Text('Age: ${securityData['age']}', style: TextStyle(color: gold)),
+                Text('Gender: ${securityData['gender']}', style: TextStyle(color: gold)),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

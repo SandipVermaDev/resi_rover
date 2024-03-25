@@ -25,7 +25,7 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('complaints')
@@ -36,9 +36,9 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(gold),
-                  strokeWidth: 3.0,
-                ));
+              valueColor: AlwaysStoppedAnimation<Color>(gold),
+              strokeWidth: 3.0,
+            ));
           }
 
           if (snapshot.hasError) {
@@ -56,7 +56,7 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
               DateTime? uploadTime = extractTimestamp(complaint['timestamp']);
 
               return Card(
-                margin: const EdgeInsets.all(20.0),
+                margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
@@ -82,11 +82,11 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
                           Container(
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.red.shade400,
+                              color: Colors.red.shade900,
                               borderRadius: BorderRadius.circular(20.0),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.only(left: 5,right: 5),
+                              padding: const EdgeInsets.only(left: 5, right: 5),
                               child: DropdownButton<String>(
                                 value: complaint['status'],
                                 onChanged: (String? newValue) {
@@ -94,8 +94,12 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
                                     _handleStatusChange(complaint.id, newValue);
                                   }
                                 },
-                                items: <String>['Pending', 'Open', 'On Hold', 'Closed']
-                                    .map<DropdownMenuItem<String>>((String value) {
+                                items: <String>[
+                                  'Pending',
+                                  'Open',
+                                  'On Hold',
+                                  'Closed'
+                                ].map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
                                     child: Text(
@@ -107,7 +111,8 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
                                     ),
                                   );
                                 }).toList(),
-                                icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                                icon: const Icon(Icons.arrow_drop_down,
+                                    color: Colors.white),
                                 iconEnabledColor: Colors.white,
                                 dropdownColor: gold,
                                 underline: Container(),
@@ -131,7 +136,8 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
                                 );
                               }
                             },
-                            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+                            itemBuilder: (BuildContext context) =>
+                                <PopupMenuEntry>[
                               const PopupMenuItem(
                                 value: 'delete',
                                 child: Text('Delete'),
@@ -165,20 +171,18 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
                           const Spacer(),
                           GestureDetector(
                             onLongPress: () {
-                              _handleLikeAction(
-                                  complaint.id,
+                              _handleLikeAction(complaint.id,
                                   complaint.data() as Map<String, dynamic>,
                                   isLongPress: true);
                             },
                             child: IconButton(
                               icon: const Icon(Icons.thumb_up),
                               onPressed: () {
-                                _handleLikeAction(
-                                    complaint.id,
+                                _handleLikeAction(complaint.id,
                                     complaint.data() as Map<String, dynamic>);
                               },
                               color: _isLiked(complaint.id,
-                                  complaint.data() as Map<String, dynamic>)
+                                      complaint.data() as Map<String, dynamic>)
                                   ? gold
                                   : Colors.grey,
                             ),
@@ -214,8 +218,7 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
                               }
 
                               if (commentsSnapshot.hasError) {
-                                return Text(
-                                    'Error: ${commentsSnapshot.error}');
+                                return Text('Error: ${commentsSnapshot.error}');
                               }
 
                               int commentsCount =
@@ -249,7 +252,6 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
           .update({'status': newStatus});
 
       // Add any additional logic you may need after updating the status
-
     } catch (error) {
       print("Error updating complaint status: $error");
     }
@@ -295,8 +297,7 @@ class _ClosedComplaintsState extends State<ClosedComplaints> {
         DocumentSnapshot complaintSnapshot = await complaintRef.get();
 
         if (complaintSnapshot.exists) {
-          List<String> likes =
-          List<String>.from(complaintSnapshot['likes']);
+          List<String> likes = List<String>.from(complaintSnapshot['likes']);
 
           if (_isLiked(complaintId, complaint)) {
             // User has already liked, so unlike

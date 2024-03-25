@@ -25,7 +25,7 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
 
   Widget _buildViewAllMaid() {
     return Container(
-      color: Colors.grey,
+      color: Colors.grey.shade400,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: StreamBuilder<QuerySnapshot>(
@@ -56,36 +56,41 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
                 var age = maidData['age'];
                 var gender = maidData['gender'];
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Name: $name', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
-                            Text('Phone : $contactNumber', style: TextStyle(color: gold)),
-                            Text('Date of Birth: $dob', style: TextStyle(color: gold)),
-                            Text('Age: $age', style: TextStyle(color: gold)),
-                            Text('Gender: $gender', style: TextStyle(color: gold)),
-                          ],
+                return GestureDetector(
+                  onTap: () {
+                    _showMaidDetails(maidData);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
                         ),
-                      ),
-                    ],
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Name: $name', style: TextStyle(color: gold,fontWeight: FontWeight.bold)),
+                              Text('Phone : $contactNumber', style: TextStyle(color: gold)),
+                              Text('Date of Birth: $dob', style: TextStyle(color: gold)),
+                              Text('Age: $age', style: TextStyle(color: gold)),
+                              Text('Gender: $gender', style: TextStyle(color: gold)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -93,6 +98,43 @@ class _MaidPageState extends State<MaidPage> with SingleTickerProviderStateMixin
           },
         ),
       ),
+    );
+  }
+
+  void _showMaidDetails(Map<String, dynamic> maidData) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black87,
+          title: Text(
+            'Maid Details',
+            style: TextStyle(color: gold, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(maidData['profileImageURL'], height: 200),
+              const SizedBox(height: 20),
+              Text('Name: ${maidData['name']}', style: TextStyle(color: gold)),
+              Text('Contact Number: ${maidData['contactNumber']}', style: TextStyle(color: gold)),
+              Text('Date of Birth: ${maidData['dob']}', style: TextStyle(color: gold)),
+              Text('Age: ${maidData['age']}', style: TextStyle(color: gold)),
+              Text('Gender: ${maidData['gender']}', style: TextStyle(color: gold)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close',
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

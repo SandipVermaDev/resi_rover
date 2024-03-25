@@ -25,7 +25,7 @@ class _LikedByPageState extends State<LikedByPage> {
         child: ListView(
           children: widget.likes.map((userEmail) {
             return Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(left: 16,right: 16,top: 16),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black,

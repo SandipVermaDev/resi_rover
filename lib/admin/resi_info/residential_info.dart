@@ -16,7 +16,7 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.grey.shade400,
       appBar: AppBar(
         title: Text('Residential Information', style: TextStyle(color: gold)),
         backgroundColor: Colors.black,
@@ -49,7 +49,7 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
                           style: TextStyle(color: Colors.black)),
                       subtitle: Text(residencyName,
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 20)),
+                              color: Colors.black, fontSize: 26)),
                     ),
                     SizedBox(
                       height: 200,
@@ -101,7 +101,7 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
                         ),
                       );
                     }),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 60),
                   ],
                 ),
               );
@@ -163,56 +163,6 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
           }
         },
       ),
-
-      /*floatingActionButton: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance.collection('residencies').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Colors.black,
-              child: Icon(
-                Icons.add,
-                color: gold,
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Colors.black,
-              child: Icon(
-                Icons.add,
-                color: gold,
-              ),
-            );
-          } else {
-            final List<DocumentSnapshot> documents = snapshot.data!.docs;
-            final bool residencyExists = documents.isNotEmpty;
-            return FloatingActionButton(
-              onPressed: () {
-                if (residencyExists) {
-                  // Navigate to edit page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditResidencyPage(residencyData: documents[0].data() as Map<String, dynamic>)),
-                  );
-                } else {
-                  // Navigate to add page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AddResidencyPage()),
-                  );
-                }
-              },
-              backgroundColor: Colors.black,
-              child: Icon(
-                Icons.add,
-                color: gold,
-              ),
-            );
-          }
-        },
-      ),*/
     );
   }
 }
