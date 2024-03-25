@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 class ResidencyCarousel extends StatefulWidget {
   const ResidencyCarousel({super.key});
@@ -93,10 +95,16 @@ class _ResidencyCarouselState extends State<ResidencyCarousel> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(17),
-                        child: Image.network(
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                        ),
+                        /*child: Image.network(
                           url,
                           fit: BoxFit.cover,
-                        ),
+                        ),*/
                       ),
                     );
                   },
@@ -109,8 +117,8 @@ class _ResidencyCarouselState extends State<ResidencyCarousel> {
               right: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: _residencyImages.map((String url) {
-                  int index = _residencyImages.indexOf(url);
+                children: _residencyImages.asMap().entries.map((entry) {
+                  int index = entry.key;
                   return Container(
                     width: 8.0,
                     height: 8.0,
