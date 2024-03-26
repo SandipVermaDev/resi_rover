@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
@@ -146,7 +147,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     const SizedBox(height: 4.0),
                     Container(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(4.0),
                       decoration: BoxDecoration(
                         color: isCurrentUser ? Colors.black : gold,
                         borderRadius: BorderRadius.circular(20.0),
@@ -195,10 +196,16 @@ class _ChatPageState extends State<ChatPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Image.network(
-              content,
-              width: 200,
-              height: 150,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: CachedNetworkImage(
+                imageUrl: content,
+                height: 150,
+                width:200,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
             ),
           ],
         ),
@@ -478,13 +485,13 @@ class _ChatPageState extends State<ChatPage> {
       builder: (BuildContext context) {
         return Dialog(
           child: SizedBox(
-            width: 500,
+            width: MediaQuery.of(context).size.width,
             height: 700,
             child: PhotoViewGallery.builder(
               itemCount: 1,
               builder: (context, index) {
                 return PhotoViewGalleryPageOptions(
-                  imageProvider: NetworkImage(imageUrl),
+                  imageProvider: CachedNetworkImageProvider(imageUrl),
                   minScale: PhotoViewComputedScale.contained * 0.8,
                   maxScale: PhotoViewComputedScale.covered * 2,
                 );

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +56,15 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 80),
-                CircleAvatar(
-                  radius: 80,
-                  backgroundImage:
-                  NetworkImage(userData['profileImageURL'] ?? ''),
+                GestureDetector(
+                  onTap: () {
+                    _showImageDialog(userData['profileImageURL'] ?? '');
+                  },
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundImage:
+                    CachedNetworkImageProvider(userData['profileImageURL'] ?? ''),
+                  ),
                 ),
                 const SizedBox(height: 50),
                 _buildDetailRow('Name', userData['name'] ?? ''),
@@ -103,6 +109,21 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showImageDialog(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+        );
+      },
     );
   }
 }

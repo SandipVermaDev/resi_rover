@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -136,7 +137,7 @@ class _MaidPageState extends State<MaidPage>
                         CircleAvatar(
                           radius: 30,
                           backgroundImage: profileImageURL != null
-                              ? NetworkImage(profileImageURL)
+                              ? CachedNetworkImageProvider(profileImageURL)
                               : null,
                         ),
                         const SizedBox(
@@ -206,7 +207,12 @@ class _MaidPageState extends State<MaidPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.network(maidData['profileImageURL'], height: 200),
+              CachedNetworkImage(
+                imageUrl: maidData['profileImageURL'],
+                height: 200,
+                placeholder: (context, url) => const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
               const SizedBox(height: 20),
               Text('Name: ${maidData['name']}', style: TextStyle(color: gold)),
               Text('Contact Number: ${maidData['contactNumber']}', style: TextStyle(color: gold)),

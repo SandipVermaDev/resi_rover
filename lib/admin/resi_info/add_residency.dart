@@ -84,7 +84,7 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
                 style: TextStyle(color: Colors.black, fontSize: 18)),
             if (images.isNotEmpty) ...[
               SizedBox(
-                height: 200,
+                height: 150,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
@@ -96,7 +96,6 @@ class _AddResidencyPageState extends State<AddResidencyPage> {
                           child: Image.file(
                             images[index],
                             fit: BoxFit.cover,
-                            width: 400,
                           ),
                         ),
                         Positioned(

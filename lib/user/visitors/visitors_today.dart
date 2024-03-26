@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -113,7 +114,7 @@ class _VisitorsTodayTabState extends State<VisitorsTodayTab> {
                           leading: CircleAvatar(
                             radius: 30,
                             backgroundImage: visitorProfileImageURL != null
-                                ? NetworkImage(visitorProfileImageURL)
+                                ? CachedNetworkImageProvider(visitorProfileImageURL)
                                 : null,
                           ),
                           title: Column(
@@ -341,7 +342,12 @@ class _VisitorsTodayTabState extends State<VisitorsTodayTab> {
                 children: [
                   const SizedBox(height: 25),
                   if (visitorData['profileImageURL'] != null)
-                    Image.network(visitorData['profileImageURL'], height: 200),
+                    CachedNetworkImage(
+                      imageUrl: visitorData['profileImageURL'],
+                      height: 200,
+                      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                    ),
                   const SizedBox(height: 25),
                   Text('Name: ${visitorData['name']}',
                       style: TextStyle(

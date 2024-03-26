@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -60,7 +61,8 @@ class _UsersPageState extends State<UsersPage> {
                       _showUserDetailsPopup(context, userData);
                     },
                     child: Card(
-                      margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
+                      margin:
+                          const EdgeInsets.only(left: 20, right: 20, top: 20),
                       color: Colors.black,
                       elevation: 2.0,
                       shape: RoundedRectangleBorder(
@@ -70,7 +72,7 @@ class _UsersPageState extends State<UsersPage> {
                         leading: CircleAvatar(
                           radius: 35,
                           backgroundImage: profileImageURL != null
-                              ? NetworkImage(profileImageURL)
+                              ? CachedNetworkImageProvider(profileImageURL)
                               : null,
                         ),
                         title: Text('Name: $username',
@@ -177,7 +179,12 @@ class _UsersPageState extends State<UsersPage> {
                 children: [
                   const SizedBox(height: 25),
                   if (userData['profileImageURL'] != null)
-                    Image.network(userData['profileImageURL'], height: 200),
+                    CachedNetworkImage(
+                      imageUrl: userData['profileImageURL'],
+                      height: 200,
+                      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                    ),
                   const SizedBox(height: 25),
                   Text('Name: ${userData['name']}',
                       style: TextStyle(

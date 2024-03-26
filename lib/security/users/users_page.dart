@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -66,7 +67,7 @@ class UserList extends StatelessWidget {
                   _showUserDetailsPopup(context, userData);
                 },
                 child: Card(
-                  margin: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                  margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
                   color: Colors.black,
                   elevation: 2.0,
                   shape: RoundedRectangleBorder(
@@ -75,7 +76,7 @@ class UserList extends StatelessWidget {
                   child: ListTile(
                     leading: CircleAvatar(
                       radius: 35,
-                      backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
+                      backgroundImage: profileImageURL != null ? CachedNetworkImageProvider(profileImageURL) : null,
                     ),
                     title: Text('Name: $username', style: TextStyle(color: gold,fontSize: 20)),
                     subtitle: Column(
@@ -114,7 +115,12 @@ class UserList extends StatelessWidget {
                 children: [
                   const SizedBox(height: 25),
                   if (userData['profileImageURL'] != null)
-                    Image.network(userData['profileImageURL'], height: 200),
+                    CachedNetworkImage(
+                      imageUrl: userData['profileImageURL'],
+                      height: 200,
+                      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                    ),
                   const SizedBox(height: 25),
                   Text('Name: ${userData['name']}', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold , color: gold)),
                   const SizedBox(height: 10),

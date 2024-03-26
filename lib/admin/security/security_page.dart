@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -146,7 +147,7 @@ class _SecurityPageState extends State<SecurityPage>
                         CircleAvatar(
                           radius: 30,
                           backgroundImage: profileImageURL != null
-                              ? NetworkImage(profileImageURL)
+                              ? CachedNetworkImageProvider(profileImageURL)
                               : null,
                         ),
                         const SizedBox(
@@ -229,7 +230,12 @@ class _SecurityPageState extends State<SecurityPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (securityData['profileImageURL'] != null)
-                  Image.network(securityData['profileImageURL'], height: 200),
+                  CachedNetworkImage(
+                    imageUrl: securityData['profileImageURL'],
+                    height: 200,
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  ),
                 const SizedBox(height: 10),
                 Text('Name: ${securityData['name']}', style: TextStyle(color: gold)),
                 Text('Email: ${securityData['email']}', style: TextStyle(color: gold)),

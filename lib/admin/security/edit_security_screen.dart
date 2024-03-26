@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -184,11 +185,13 @@ class _EditSecurityScreenState extends State<EditSecurityScreen> {
     return profileImageURL != null
         ? ClipRRect(
             borderRadius: BorderRadius.circular(50),
-            child: Image.network(
-              profileImageURL,
-              width: 100,
+            child: CachedNetworkImage(
+              imageUrl: profileImageURL,
               height: 100,
+              width: 100,
               fit: BoxFit.cover,
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
           )
         : const Icon(

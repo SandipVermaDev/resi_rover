@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -140,10 +141,11 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(4.0),
-                          child: Image.network(
-                            imageUrls[index],
-                            fit: BoxFit.cover,
-                            width: 400,
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrls[index],
+                            height: 150,
+                            placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                            errorWidget: (context, url, error) => const Icon(Icons.error),
                           ),
                         ),
                         Positioned(
@@ -170,7 +172,7 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
                 style: TextStyle(color: Colors.black, fontSize: 18),
               ),
               SizedBox(
-                height: 200,
+                height: 150,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: images.length,
@@ -182,7 +184,7 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
                           child: Image.file(
                             images[index],
                             fit: BoxFit.cover,
-                            width: 400,
+                            //width: 400,
                           ),
                         ),
                         Positioned(
@@ -272,6 +274,31 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
       }
 
       CollectionReference residencyCollection =
+      FirebaseFirestore.instance.collection('residencies');
+
+      // Get the existing image URLs
+      List<String>? existingImageUrls =
+      widget.residencyData['images']?.cast<String>();
+
+      // Remove the deleted image URL from Firestore
+      if (existingImageUrls != null && existingImageUrls.contains(imageUrl)) {
+        existingImageUrls.remove(imageUrl);
+        await residencyCollection.doc(residencyNameController.text).update({
+          'images': existingImageUrls,
+        });
+      }
+
+      setState(() {
+        imageUrls.removeAt(index);
+      });
+
+        /*if (imageUrl.isNotEmpty) {
+        await firebase_storage.FirebaseStorage.instance
+            .refFromURL(imageUrl)
+            .delete();
+      }
+
+      CollectionReference residencyCollection =
           FirebaseFirestore.instance.collection('residencies');
 
       // Delete image URL from Firestore
@@ -281,14 +308,14 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
 
       setState(() {
         imageUrls.removeAt(index);
-      });
+      });*/
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Image deleted successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Image deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
     } catch (e) {
       // Handle other exceptions
       print('Error deleting image: $e');
@@ -464,6 +491,23 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
       DocumentReference oldResidencyDocRef =
           residencyCollection.doc(oldResidencyName);
 
+      if (oldResidencyName != residencyNameController.text) {
+        // Delete the old residency document only if the name has changed
+        await oldResidencyDocRef.delete();
+
+        // Create a new document with the new name
+        await residencyCollection.doc(residencyNameController.text).set({
+          'residencyName': residencyNameController.text,
+          'wingsAndFlats': wingsAndFlats,
+        });
+      } else {
+        // Update the existing document if the name remains the same
+        await oldResidencyDocRef.update({
+          'wingsAndFlats': wingsAndFlats,
+        });
+      }
+
+      /*
       // Delete the old residency document
       await oldResidencyDocRef.delete();
 
@@ -471,7 +515,7 @@ class _EditResidencyPageState extends State<EditResidencyPage> {
       await residencyCollection.doc(residencyNameController.text).set({
         'residencyName': residencyNameController.text,
         'wingsAndFlats': wingsAndFlats,
-      });
+      });*/
 
       // Upload images to Firebase Storage and store download URLs in Firestore
       List<String> uploadedImageUrls = await _uploadImages();

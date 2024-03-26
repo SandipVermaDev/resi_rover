@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -233,11 +234,13 @@ class _EditMaidScreenState extends State<EditMaidScreen> {
     return profileImageURL != null
         ? ClipRRect(
             borderRadius: BorderRadius.circular(50),
-            child: Image.network(
-              profileImageURL,
+            child: CachedNetworkImage(
+              imageUrl: profileImageURL,
               width: 100,
               height: 100,
               fit: BoxFit.cover,
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
           )
         : const Icon(

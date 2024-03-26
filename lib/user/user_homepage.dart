@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -120,7 +121,7 @@ class _UserHomePageState extends State<UserHomePage> {
                       child: _userProfileImageUrl.isNotEmpty
                           ? CircleAvatar(
                         radius: 50,
-                        backgroundImage: NetworkImage(_userProfileImageUrl),
+                        backgroundImage: CachedNetworkImageProvider(_userProfileImageUrl),
                       )
                           : const Icon(
                         Icons.account_circle,

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,6 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController ageController = TextEditingController();
   String? _profileImageURL;
 
+  bool _updatingProfile = false;
   Color gold = const Color(0xFFD7B504);
 
   @override
@@ -152,12 +154,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _updateUserProfile,
-        backgroundColor: gold,
-        icon: const Icon(Icons.update),
-        label: const Text('Update'),
-      ),
+      floatingActionButton: _updatingProfile
+          ? const CircularProgressIndicator() // Show progress indicator when updating
+          : FloatingActionButton.extended(
+              onPressed: _updateUserProfile,
+              backgroundColor: gold,
+              icon: const Icon(Icons.update),
+              label: const Text('Update'),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -167,7 +171,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ? CircleAvatar(
             radius: 79,
             backgroundColor: gold,
-            backgroundImage: NetworkImage(profileImageURL),
+            backgroundImage: CachedNetworkImageProvider(profileImageURL),
             child: Container(
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
@@ -176,7 +180,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           )
         : CircleAvatar(
-            radius: 79,
+            radius: 78,
             backgroundColor: gold,
             child: const Icon(
               Icons.person,
@@ -309,6 +313,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _updateUserProfile() async {
+    setState(() {
+      _updatingProfile = true;
+    });
+
     final FirebaseAuth auth = FirebaseAuth.instance;
     var currentUser = auth.currentUser;
 
@@ -360,6 +368,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         "age": ageController.text,
       });
 
+      setState(() {
+        _updatingProfile = false;
+      });
       Navigator.of(context).pop();
     } catch (error) {
       print('Error updating profile: $error');

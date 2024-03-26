@@ -56,6 +56,11 @@ class _PendingComplaintsState extends State<PendingComplaints> {
               var complaint = snapshot.data!.docs[index];
               DateTime? uploadTime = extractTimestamp(complaint['timestamp']);
 
+              String? currentUserEmail =
+                  FirebaseAuth.instance.currentUser?.email;
+              bool isCurrentUserComplaint =
+                  currentUserEmail == complaint['userEmail'];
+
               return Card(
                 margin: const EdgeInsets.only(left: 20,right: 20,top: 20),
                 shape: RoundedRectangleBorder(
@@ -94,6 +99,7 @@ class _PendingComplaintsState extends State<PendingComplaints> {
                               ),
                             ),
                           ),
+                          if (isCurrentUserComplaint)
                           PopupMenuButton(
                             color: gold,
                             icon: const Icon(

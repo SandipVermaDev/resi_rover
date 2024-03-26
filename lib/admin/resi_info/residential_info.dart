@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:resi_rover/admin/resi_info/add_residency.dart';
@@ -52,7 +53,7 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
                               color: Colors.black, fontSize: 26)),
                     ),
                     SizedBox(
-                      height: 200,
+                      height: 150,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: images.length,
@@ -60,7 +61,11 @@ class _ResidentialInfoPageState extends State<ResidentialInfoPage> {
                           if (images[index] is String) {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Image.network(images[index] as String),
+                              child: CachedNetworkImage(
+                                imageUrl: images[index] as String,
+                                placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => const Icon(Icons.error),
+                              ),
                             );
                           } else {
                             return const SizedBox();

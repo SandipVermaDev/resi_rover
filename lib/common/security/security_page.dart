@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -68,7 +69,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.black,
-                      borderRadius: BorderRadius.circular(12.0),
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     padding: const EdgeInsets.all(12.0),
@@ -77,7 +78,7 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
                       children: [
                         CircleAvatar(
                           radius: 30,
-                          backgroundImage: profileImageURL != null ? NetworkImage(profileImageURL) : null,
+                          backgroundImage: profileImageURL != null ? CachedNetworkImageProvider(profileImageURL) : null,
                         ),
                         const SizedBox(
                           width: 10,
@@ -116,7 +117,12 @@ class _SecurityPageState extends State<SecurityPage> with SingleTickerProviderSt
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (securityData['profileImageURL'] != null)
-                  Image.network(securityData['profileImageURL'], height: 200),
+                  CachedNetworkImage(
+                    imageUrl: securityData['profileImageURL'],
+                    height: 200,
+                    placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  ),
                 const SizedBox(height: 10),
                 Text('Name: ${securityData['name']}', style: TextStyle(color: gold)),
                 Text('Email: ${securityData['email']}', style: TextStyle(color: gold)),
