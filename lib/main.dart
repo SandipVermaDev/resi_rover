@@ -13,6 +13,8 @@ import 'admin/admin_dashboard.dart';
 import 'auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
+//flutter run -d chrome --web-renderer html
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
